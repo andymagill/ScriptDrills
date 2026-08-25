@@ -13,9 +13,16 @@ npm run dev         # start Vite dev server
 npm run typecheck   # tsc --noEmit
 npm run build        # tsc -b && vite build
 npm run preview      # preview a production build
+npm run lint         # eslint .
+npm run lint:fix     # eslint . --fix
+npm test             # vitest run (single run)
+npm run test:watch   # vitest (watch mode)
 ```
 
-There is no test suite and no linter configured in this repo.
+A husky pre-commit hook runs `lint-staged` (`eslint --fix` on staged `.ts`/`.tsx`
+files) so commits stay fast. A pre-push hook runs `typecheck` + the full test suite,
+so nothing broken reaches the remote. Both are wired via the `prepare` script, so
+`npm install` sets them up automatically.
 
 ## Architecture
 
@@ -102,10 +109,31 @@ unless you want the *string* itself to be the visible return value).
 4. Confirm the *unmodified* `starterCode` does **not** already satisfy
    `expectedOutput` (i.e. it doesn't leak the answer).
 
+## Linting & testing
+
+- ESLint uses a flat config ([eslint.config.js](eslint.config.js)): `typescript-eslint`
+  + `eslint-plugin-react-hooks` + `eslint-plugin-react-refresh`, matching the standard
+  Vite/React template setup. `src/components/ui/**` and `src/hooks/use-mobile.ts` are
+  excluded — they're generated shadcn/ui vendor code, not hand-maintained app code,
+  and the newer `react-hooks` v7 rules (purity/set-state-in-effect checks aimed at
+  React Compiler) flag several idiomatic patterns in there that aren't worth hand-
+  editing library output to satisfy.
+- Tests run on **Vitest**, not Jest — it reuses `vite.config.ts` directly (see the
+  `test` block there, `environment: "jsdom"`) with no extra ESM/TS transform config,
+  unlike Jest in a Vite/ESM project. `globals: true` means `describe`/`it`/`expect`
+  don't need explicit imports, though existing tests import them anyway for clarity.
+- Current coverage: [src/lib/storage.test.ts](src/lib/storage.test.ts) covers the
+  localStorage-backed stats/activity-log/active-challenge logic in
+  [src/lib/storage.ts](src/lib/storage.ts). Nothing else has tests yet — see gaps
+  below for good next targets.
+
 ## Known gaps
 
-- No automated tests.
-- No ESLint config.
+- Only `storage.ts` has test coverage. Good next candidates: a data-integrity test
+  over `drill-challenges.json` (unique ids, and — given the answer-leak bug this
+  repo already had once — asserting no `starterCode` already satisfies its
+  `expectedOutput`), a `transpile.ts` unit test, and a React Testing Library
+  integration test over the `Practice` run/evaluate flow.
 - Single production JS chunk is ~530 kB (Vite warns about this at build time); not
   yet code-split.
 - The code editor is a plain `<textarea>` — no syntax highlighting, bracket matching,
