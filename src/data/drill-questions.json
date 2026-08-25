@@ -1,0 +1,212 @@
+[
+  {
+    "id": "ts-001",
+    "title": "Hello, TypeScript!",
+    "description": "Write a function that returns a personalized greeting string.",
+    "objective": "Return the string \"Hello, TypeScript!\" from your code.",
+    "hints": [
+      "Your code must end with a return statement.",
+      "String literals in JavaScript use single quotes, double quotes, or backticks.",
+      "Example: return \"Hello, World!\""
+    ],
+    "starterCode": "// Return the exact greeting string below\nreturn \"Hello, TypeScript!\";",
+    "expectedOutput": "Hello, TypeScript!",
+    "explanation": "The simplest possible program — return a string literal. In TypeScript, string types can hold any sequence of characters. The return value of your code block is what gets evaluated."
+  },
+  {
+    "id": "ts-002",
+    "title": "Sum Two Numbers",
+    "description": "Add two numbers together and return the result.",
+    "objective": "Return the sum of 42 and 58. The expected output is 100.",
+    "hints": [
+      "Use the + operator to add two numbers.",
+      "You can use variables or add directly: return 42 + 58;",
+      "The result should be the number 100, not a string."
+    ],
+    "starterCode": "const a = 42;\nconst b = 58;\n// Return their sum\nreturn a + b;",
+    "expectedOutput": "100",
+    "explanation": "Arithmetic addition with the + operator. When both operands are numbers, JavaScript performs numeric addition. When one is a string, it concatenates — a common source of bugs!"
+  },
+  {
+    "id": "ts-003",
+    "title": "FizzBuzz Classic",
+    "description": "Solve the classic FizzBuzz problem for the number 15.",
+    "objective": "Return \"FizzBuzz\" if the number is divisible by both 3 and 5, \"Fizz\" if only divisible by 3, \"Buzz\" if only by 5, otherwise return the number itself. Test with n = 15.",
+    "hints": [
+      "Use the modulo operator % to check divisibility. n % 3 === 0 means n is divisible by 3.",
+      "Check divisibility by both 3 AND 5 first, before the individual checks.",
+      "For n = 15: 15 % 3 === 0 AND 15 % 5 === 0, so the answer is \"FizzBuzz\"."
+    ],
+    "starterCode": "const n = 15;\n\nif (n % 3 === 0 && n % 5 === 0) {\n  return \"FizzBuzz\";\n} else if (n % 3 === 0) {\n  return \"Fizz\";\n} else if (n % 5 === 0) {\n  return \"Buzz\";\n} else {\n  return String(n);\n}",
+    "expectedOutput": "FizzBuzz",
+    "explanation": "FizzBuzz tests your ability to write conditional logic correctly. The key insight is checking the combined condition (divisible by both 3 AND 5) first — otherwise you'd never reach it."
+  },
+  {
+    "id": "ts-004",
+    "title": "Reverse a String",
+    "description": "Reverse the characters in a given string.",
+    "objective": "Return the string \"hello\" reversed. Expected output: \"olleh\".",
+    "hints": [
+      "Strings in JavaScript are iterable. You can spread them into an array: [...str]",
+      "Arrays have a .reverse() method that reverses elements in-place.",
+      "Arrays have a .join('') method that concatenates all elements into a string."
+    ],
+    "starterCode": "const str = \"hello\";\n// Reverse the string and return it\nreturn str.split('').reverse().join('');",
+    "expectedOutput": "olleh",
+    "explanation": "A classic string manipulation pattern: split into characters → reverse the array → join back. The spread operator [...str] also works as an alternative to .split('')."
+  },
+  {
+    "id": "ts-005",
+    "title": "Array Sum",
+    "description": "Sum all numbers in an array using reduce.",
+    "objective": "Return the sum of all numbers in [1, 2, 3, 4, 5]. Expected output: 15.",
+    "hints": [
+      "Array.reduce() is perfect for accumulating a value across all elements.",
+      "Syntax: arr.reduce((accumulator, current) => accumulator + current, 0)",
+      "The second argument to reduce (0) is the initial value of the accumulator."
+    ],
+    "starterCode": "const nums = [1, 2, 3, 4, 5];\n// Sum all elements and return the total\nreturn nums.reduce((acc, curr) => acc + curr, 0);",
+    "expectedOutput": "15",
+    "explanation": "Array.prototype.reduce() is a powerful higher-order function. It iterates through the array, passing an accumulator and the current element to your callback. Starting from 0 and adding each element gives us the total sum."
+  },
+  {
+    "id": "ts-006",
+    "title": "Find the Maximum",
+    "description": "Find the largest number in an array without using Math.max.",
+    "objective": "Return the largest number in [3, 7, 1, 9, 4, 6]. Expected output: 9.",
+    "hints": [
+      "You can iterate through the array with a for...of loop.",
+      "Keep track of the current maximum in a variable, starting with the first element.",
+      "Update the max whenever you find a larger number: if (n > max) max = n;"
+    ],
+    "starterCode": "const nums = [3, 7, 1, 9, 4, 6];\nlet max = nums[0];\nfor (const n of nums) {\n  if (n > max) max = n;\n}\nreturn max;",
+    "expectedOutput": "9",
+    "explanation": "Linear search for the maximum. We initialize with the first element (not 0 or -Infinity, to handle all-negative arrays) and update whenever we find something larger. Time complexity: O(n)."
+  },
+  {
+    "id": "ts-007",
+    "title": "Count Vowels",
+    "description": "Count how many vowel characters appear in a string.",
+    "objective": "Return the number of vowels (a, e, i, o, u) in \"programming\". Expected output: 3.",
+    "hints": [
+      "You can use a regular expression: str.match(/[aeiou]/gi) returns an array of matches.",
+      "Alternatively, split into characters and filter for vowels.",
+      "Don't forget to handle both uppercase and lowercase vowels."
+    ],
+    "starterCode": "const str = \"programming\";\nconst vowels = str.match(/[aeiou]/gi);\nreturn vowels ? vowels.length : 0;",
+    "expectedOutput": "3",
+    "explanation": "Regular expressions are extremely useful for pattern matching. /[aeiou]/gi matches any character in the set [aeiou], case-insensitively (the 'i' flag), globally (the 'g' flag means find ALL matches, not just the first)."
+  },
+  {
+    "id": "ts-008",
+    "title": "Flatten a Nested Array",
+    "description": "Flatten a one-level nested array into a single array.",
+    "objective": "Return [[1, 2], [3, 4], [5, 6]] flattened to [1, 2, 3, 4, 5, 6]. Return as JSON string.",
+    "hints": [
+      "Array.prototype.flat() flattens one level by default.",
+      "You could also use concat with spread: [].concat(...arr)",
+      "Return JSON.stringify(result) so the output can be compared as a string."
+    ],
+    "starterCode": "const nested = [[1, 2], [3, 4], [5, 6]];\nconst flat = nested.flat();\nreturn JSON.stringify(flat);",
+    "expectedOutput": "[1,2,3,4,5,6]",
+    "explanation": "Array.prototype.flat() was added in ES2019. It flattens nested arrays by one level. For deeper nesting, use flat(Infinity). The JSON.stringify lets us compare array output as a string."
+  },
+  {
+    "id": "ts-009",
+    "title": "Capitalize Words",
+    "description": "Capitalize the first letter of every word in a sentence.",
+    "objective": "Return \"hello world from typescript\" with each word capitalized. Expected: \"Hello World From Typescript\".",
+    "hints": [
+      "Split the sentence into words using .split(' ').",
+      "For each word, capitalize the first character: word[0].toUpperCase() + word.slice(1)",
+      "Join the words back with .join(' ')."
+    ],
+    "starterCode": "const sentence = \"hello world from typescript\";\nreturn sentence\n  .split(' ')\n  .map(word => word.charAt(0).toUpperCase() + word.slice(1))\n  .join(' ');",
+    "expectedOutput": "Hello World From Typescript",
+    "explanation": "A map transformation on an array of words. Each word gets its first character uppercased and the rest sliced unchanged. This pattern (split → transform → join) is a common string manipulation technique."
+  },
+  {
+    "id": "ts-010",
+    "title": "Remove Duplicates",
+    "description": "Remove duplicate values from an array.",
+    "objective": "Return [1, 2, 2, 3, 4, 4, 5] with duplicates removed as JSON. Expected: \"[1,2,3,4,5]\".",
+    "hints": [
+      "The Set data structure only stores unique values.",
+      "You can convert an array to a Set and back: [...new Set(arr)]",
+      "Return JSON.stringify(result) for string comparison."
+    ],
+    "starterCode": "const arr = [1, 2, 2, 3, 4, 4, 5];\nconst unique = [...new Set(arr)];\nreturn JSON.stringify(unique);",
+    "expectedOutput": "[1,2,3,4,5]",
+    "explanation": "The Set constructor accepts any iterable and stores only unique values. Spreading it back with [...set] converts it to an array. This is the most concise way to deduplicate in modern JavaScript — O(n) time complexity."
+  },
+  {
+    "id": "ts-011",
+    "title": "Is Palindrome",
+    "description": "Check if a string reads the same forwards and backwards.",
+    "objective": "Return true if \"racecar\" is a palindrome, false otherwise. Expected output: true.",
+    "hints": [
+      "A palindrome equals its own reverse.",
+      "You can reverse a string with: str.split('').reverse().join('')",
+      "Compare the original to the reversed version with === for strict equality."
+    ],
+    "starterCode": "const str = \"racecar\";\nconst reversed = str.split('').reverse().join('');\nreturn str === reversed;",
+    "expectedOutput": "true",
+    "explanation": "A palindrome is a string identical to its reverse. We reverse using the split-reverse-join pattern and use strict equality (===) to compare. Note: a production solution would also normalize case and strip non-alphanumeric characters."
+  },
+  {
+    "id": "ts-012",
+    "title": "Fibonacci Sequence",
+    "description": "Generate the first N numbers of the Fibonacci sequence.",
+    "objective": "Return the first 8 Fibonacci numbers as a JSON array. Expected: \"[0,1,1,2,3,5,8,13]\".",
+    "hints": [
+      "Start with [0, 1]. Each subsequent number is the sum of the two before it.",
+      "Use a loop: for (let i = 2; i < n; i++) { seq.push(seq[i-1] + seq[i-2]); }",
+      "Return JSON.stringify(result) for comparison."
+    ],
+    "starterCode": "const n = 8;\nconst seq = [0, 1];\nfor (let i = 2; i < n; i++) {\n  seq.push(seq[i - 1] + seq[i - 2]);\n}\nreturn JSON.stringify(seq);",
+    "expectedOutput": "[0,1,1,2,3,5,8,13]",
+    "explanation": "The Fibonacci sequence demonstrates iterative array building. Each element depends on the previous two. We seed the array with [0, 1] and build from index 2 onward. This O(n) iterative approach is far more efficient than naive recursion."
+  },
+  {
+    "id": "ts-013",
+    "title": "Object Key Count",
+    "description": "Count the number of keys in an object.",
+    "objective": "Return the number of keys in the given person object. Expected output: 4.",
+    "hints": [
+      "Object.keys(obj) returns an array of all enumerable own property names.",
+      "Use .length on the resulting array to count them.",
+      "Alternatively: Object.keys(obj).length"
+    ],
+    "starterCode": "const person = {\n  name: \"Alice\",\n  age: 30,\n  role: \"Engineer\",\n  active: true\n};\nreturn Object.keys(person).length;",
+    "expectedOutput": "4",
+    "explanation": "Object.keys() is one of three Object static methods for inspecting properties (alongside Object.values() and Object.entries()). It returns only own enumerable properties, not inherited ones from the prototype chain."
+  },
+  {
+    "id": "ts-014",
+    "title": "Filter and Map Chain",
+    "description": "Filter an array, then transform the remaining items.",
+    "objective": "From [1..10], filter even numbers, then square each. Return as JSON. Expected: \"[4,16,36,64,100]\".",
+    "hints": [
+      "Use .filter(n => n % 2 === 0) to keep only even numbers.",
+      "Chain .map(n => n * n) to square each remaining number.",
+      "Return JSON.stringify(result) for comparison."
+    ],
+    "starterCode": "const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];\nconst result = nums\n  .filter(n => n % 2 === 0)\n  .map(n => n * n);\nreturn JSON.stringify(result);",
+    "expectedOutput": "[4,16,36,64,100]",
+    "explanation": "Method chaining makes functional array transformations readable. filter() creates a new array with elements that pass the test, then map() transforms each remaining element. Neither mutates the original array — a key principle of functional programming."
+  },
+  {
+    "id": "ts-015",
+    "title": "Deep Object Merge",
+    "description": "Merge two flat objects together, with the second object's values taking priority.",
+    "objective": "Merge {a: 1, b: 2} and {b: 3, c: 4}. Return JSON. Expected: \"{\\\"a\\\":1,\\\"b\\\":3,\\\"c\\\":4}\".",
+    "hints": [
+      "The spread operator can merge objects: { ...obj1, ...obj2 }",
+      "Later properties override earlier ones when spreading.",
+      "Return JSON.stringify(result) for comparison."
+    ],
+    "starterCode": "const defaults = { a: 1, b: 2 };\nconst overrides = { b: 3, c: 4 };\nconst merged = { ...defaults, ...overrides };\nreturn JSON.stringify(merged);",
+    "expectedOutput": "{\"a\":1,\"b\":3,\"c\":4}",
+    "explanation": "The object spread operator {...obj} creates a shallow copy of an object's properties. When two spreads share a key, the later one wins. This is the modern alternative to Object.assign({}, obj1, obj2) and is widely used for configuration merging and immutable state updates."
+  }
+]

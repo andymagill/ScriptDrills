@@ -1,0 +1,132 @@
+[
+  {
+    "id": 1,
+    "title": "Group Items by Key",
+    "description": "Implement a generic function `groupBy<T>(items: T[], key: keyof T): Record<string, T[]>` that groups an array of objects into a dictionary keyed by the string value of the given property. Items with the same value for `key` should be grouped together in an array, preserving their original relative order.\n\nTest with:\nconst items = [\n  { category: 'fruit', name: 'apple' },\n  { category: 'vegetable', name: 'carrot' },\n  { category: 'fruit', name: 'banana' },\n  { category: 'vegetable', name: 'potato' },\n  { category: 'grain', name: 'rice' }\n];\ngroupBy(items, 'category')",
+    "starterCode": "function groupBy<T>(items: T[], key: keyof T): Record<string, T[]> {\n  \n}",
+    "hints": [
+      "Iterate through the array and use the value at `item[key]` as the key for your result object.",
+      "Use `String(item[key])` to safely convert the key's value into a string usable as an object key.",
+      "The first time you see a new key value, initialize an empty array for it before pushing the current item."
+    ],
+    "explanation": "The cleanest approach uses `Array.prototype.reduce` to build a `Record<string, T[]>` accumulator: for each item, compute `const groupKey = String(item[key])`, then do `acc[groupKey] = acc[groupKey] ?? []; acc[groupKey].push(item);` before returning `acc`. Typing the parameter as `keyof T` (rather than `string`) gives you compile-time safety — you can't accidentally group by a property that doesn't exist on `T`. Since object property insertion order is preserved for string keys in JavaScript, the resulting groups appear in the order their first member was encountered.",
+    "expectedOutput": "{\"fruit\":[{\"category\":\"fruit\",\"name\":\"apple\"},{\"category\":\"fruit\",\"name\":\"banana\"}],\"vegetable\":[{\"category\":\"vegetable\",\"name\":\"carrot\"},{\"category\":\"vegetable\",\"name\":\"potato\"}],\"grain\":[{\"category\":\"grain\",\"name\":\"rice\"}]}"
+  },
+  {
+    "id": 2,
+    "title": "Deep Clone a Nested Value",
+    "description": "Implement `deepClone<T>(value: T): T` that returns a fully independent deep copy of a value made up of plain objects, arrays, numbers, strings, booleans, and null (no functions, Dates, Maps, or circular references need to be handled).\n\nTest with:\nconst original = { a: 1, b: { c: 2, d: [3, 4, { e: 5 }] }, f: null };\ndeepClone(original)",
+    "starterCode": "function deepClone<T>(value: T): T {\n  \n}",
+    "hints": [
+      "If `value` is `null` or not an object (a primitive), just return it directly — primitives are already copied by value.",
+      "If `Array.isArray(value)` is true, return a new array built by recursively cloning each element.",
+      "Otherwise it's a plain object: build a new object and recursively clone each of its own property values."
+    ],
+    "explanation": "Deep cloning requires recursion: the base case returns primitives (and `null`) as-is since they're copied by value already. For arrays, `value.map(item => deepClone(item))` recursively clones each element into a brand-new array. For objects, iterate `Object.keys(value)` and assign each recursively-cloned value onto a fresh object, so nested references never alias the original. This differs from `JSON.parse(JSON.stringify(value))`, which silently drops `undefined`/functions and can't handle special types — a manual recursive clone is more explicit and extensible.",
+    "expectedOutput": "{\"a\":1,\"b\":{\"c\":2,\"d\":[3,4,{\"e\":5}]},\"f\":null}"
+  },
+  {
+    "id": 3,
+    "title": "Flatten a Nested Array to a Depth",
+    "description": "Implement `flattenArray<T>(arr: unknown[], depth: number): T[]` that flattens a nested array up to `depth` levels deep, without using the built-in `Array.prototype.flat`.\n\nTest with:\nconst nested = [1, [2, 3, [4, 5, [6, 7]]], 8, [9]];\nflattenArray(nested, 2)",
+    "starterCode": "function flattenArray<T>(arr: unknown[], depth: number): T[] {\n  \n}",
+    "hints": [
+      "If `depth <= 0`, just return a shallow copy of the array as-is.",
+      "Otherwise, use `reduce`: for each element, if `Array.isArray(element)` is true, recursively flatten it with `depth - 1` and concat the result; otherwise concat the element itself.",
+      "Remember that `Array.prototype.concat` already merges one level of array automatically, so concatenating a recursively-flattened sub-array won't leave extra nesting."
+    ],
+    "explanation": "The idiomatic manual implementation mirrors the native `.flat()` polyfill: `return depth > 0 ? arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? flattenArray(val, depth - 1) : val), []) : arr.slice();`. Each recursive call reduces `depth` by one only when descending into a nested array, so elements deeper than `depth` levels remain nested in the output. Using `concat` (rather than `push`) keeps the code concise since it naturally spreads array arguments by one level.",
+    "expectedOutput": "[1,2,3,4,5,[6,7],8,9]"
+  },
+  {
+    "id": 4,
+    "title": "Pluck Specific Object Keys",
+    "description": "Implement `pluck<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K>` that returns a new object containing only the specified keys (in the order given) copied from the input object.\n\nTest with:\nconst user = { id: 1, name: 'Ada', email: 'ada@example.com', age: 30, active: true };\npluck(user, ['name', 'age'])",
+    "starterCode": "function pluck<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {\n  \n}",
+    "hints": [
+      "Start with an empty object and cast it to `Pick<T, K>` so TypeScript knows what shape you're building toward.",
+      "Loop over the `keys` array (not `Object.keys(obj)`) so the output only contains — and follows the order of — the requested keys.",
+      "For each key `k` in `keys`, copy `obj[k]` onto your result object under the same key."
+    ],
+    "explanation": "`Pick<T, K>` is a built-in TypeScript utility type that produces a new object type containing only the properties named in `K`. The runtime implementation just needs to iterate the requested `keys` array and copy each property across: `const result = {} as Pick<T, K>; for (const k of keys) { result[k] = obj[k]; } return result;`. Constraining `K extends keyof T` means the compiler rejects any key that doesn't actually exist on `T`, catching typos at compile time rather than producing `undefined` values at runtime.",
+    "expectedOutput": "{\"name\":\"Ada\",\"age\":30}"
+  },
+  {
+    "id": 5,
+    "title": "Merge Two Typed Objects",
+    "description": "Implement `mergeObjects<T extends object, U extends object>(target: T, source: U): T & U` that returns a new object combining `target` and `source`, where properties in `source` override properties in `target` when keys collide (shallow merge only — no recursion into nested objects needed).\n\nTest with:\nconst target = { a: 1, b: 2, c: 3 };\nconst source = { b: 20, d: 4 };\nmergeObjects(target, source)",
+    "starterCode": "function mergeObjects<T extends object, U extends object>(target: T, source: U): T & U {\n  \n}",
+    "hints": [
+      "The object spread operator lets you merge two objects in a single expression.",
+      "Spread `target` first and `source` second — properties spread later always overwrite properties spread earlier with the same key.",
+      "The result naturally has the type `T & U` (an intersection), since it has every property from both `T` and `U`."
+    ],
+    "explanation": "The simplest correct implementation is `return { ...target, ...source };`. Object spread copies own enumerable properties left-to-right, so later spreads (`source`) overwrite earlier ones (`target`) when keys collide, matching the desired override behavior. The return type `T & U` is TypeScript's intersection type — it tells consumers the result is guaranteed to have every property from both input types, which is exactly what the merged object provides.",
+    "expectedOutput": "{\"a\":1,\"b\":20,\"c\":3,\"d\":4}"
+  },
+  {
+    "id": 6,
+    "title": "Remove Duplicate Objects by Key",
+    "description": "Implement `dedupeByKey<T>(items: T[], key: keyof T): T[]` that returns a new array with duplicate objects removed, where two objects are considered duplicates if they share the same value for the given `key`. Keep only the first occurrence of each value.\n\nTest with:\nconst items = [\n  { id: 1, name: 'a' },\n  { id: 2, name: 'b' },\n  { id: 1, name: 'c' },\n  { id: 3, name: 'd' },\n  { id: 2, name: 'e' }\n];\ndedupeByKey(items, 'id')",
+    "starterCode": "function dedupeByKey<T>(items: T[], key: keyof T): T[] {\n  \n}",
+    "hints": [
+      "Create a `Set` before iterating to keep track of key values you've already seen.",
+      "Use `Array.prototype.filter` and, for each item, check whether `seen.has(item[key])` — if it's already there, filter the item out.",
+      "If the value hasn't been seen yet, add it to the `Set` (e.g. with `seen.add(item[key])`) and keep the item — this preserves first occurrences."
+    ],
+    "explanation": "A `Set` gives O(1) average lookup, so the whole operation runs in O(n) time: `const seen = new Set(); return items.filter(item => { const val = item[key]; if (seen.has(val)) return false; seen.add(val); return true; });`. Because `filter` processes items in original order and the `Set` check happens before insertion, the first item for each distinct key value is always the one retained, and everything after it with the same key value is dropped.",
+    "expectedOutput": "[{\"id\":1,\"name\":\"a\"},{\"id\":2,\"name\":\"b\"},{\"id\":3,\"name\":\"d\"}]"
+  },
+  {
+    "id": 7,
+    "title": "Sort by Multiple Keys",
+    "description": "Implement `sortByMultipleKeys<T>(items: T[], keys: (keyof T)[]): T[]` that returns a new, sorted array (ascending), using each key in `keys` in order as a tiebreaker for the previous one. Do not mutate the input array. Assume all compared values are strings or numbers.\n\nTest with:\nconst people = [\n  { name: 'Bob', age: 25 },\n  { name: 'Alice', age: 30 },\n  { name: 'Bob', age: 20 },\n  { name: 'Alice', age: 25 }\n];\nsortByMultipleKeys(people, ['name', 'age'])",
+    "starterCode": "function sortByMultipleKeys<T>(items: T[], keys: (keyof T)[]): T[] {\n  \n}",
+    "hints": [
+      "Copy the array first (e.g. `[...items]`) before calling `.sort()`, since `.sort()` mutates in place.",
+      "Write a comparator that loops through `keys`; for each key, compare `a[key]` and `b[key]` and return a non-zero result as soon as one is found.",
+      "`a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0` works for comparing both strings and numbers ascending; only move to the next key when this evaluates to `0`."
+    ],
+    "explanation": "Copying the array with `[...items]` avoids the classic bug of `.sort()` silently mutating the caller's data. The comparator walks `keys` in priority order: `for (const key of keys) { if (a[key] < b[key]) return -1; if (a[key] > b[key]) return 1; } return 0;`. Returning as soon as a key produces a difference means later keys only get consulted when all earlier keys are equal — exactly the 'tiebreaker' behavior multi-key sorting needs.",
+    "expectedOutput": "[{\"name\":\"Alice\",\"age\":25},{\"name\":\"Alice\",\"age\":30},{\"name\":\"Bob\",\"age\":20},{\"name\":\"Bob\",\"age\":25}]"
+  },
+  {
+    "id": 8,
+    "title": "Curry a Two-Argument Function",
+    "description": "Implement `curry2<A, B, R>(fn: (a: A, b: B) => R): (a: A) => (b: B) => R` that transforms a two-argument function into a curried version, callable as `curried(a)(b)`.\n\nTest with:\nconst add = (a: number, b: number): number => a + b;\nconst curriedAdd = curry2(add);\ncurriedAdd(3)(4)",
+    "starterCode": "function curry2<A, B, R>(fn: (a: A, b: B) => R): (a: A) => (b: B) => R {\n  \n}",
+    "hints": [
+      "`curry2` should return a function that accepts just the first argument, `a`.",
+      "That returned function should itself return another function — this one accepting `b`.",
+      "Inside the innermost function, call the original `fn(a, b)`, using closure to access the `a` captured by the outer function."
+    ],
+    "explanation": "Currying relies on closures: `return (a: A) => (b: B) => fn(a, b);`. The outer arrow function captures `a` in its closure and returns a new function that, once called with `b`, has access to both `a` and `b` and can finally invoke the original two-argument `fn`. This pattern is the building block behind partial application — calling `curry2(add)(3)` alone yields a reusable 'add 3 to something' function without immediately needing the second argument.",
+    "expectedOutput": "7"
+  },
+  {
+    "id": 9,
+    "title": "Memoize a Numeric Function",
+    "description": "Implement `memoize<T extends (...args: number[]) => number>(fn: T): T` that returns a memoized version of a single-argument numeric function — calling it twice with the same argument should only invoke the underlying `fn` once, returning the cached result the second time.\n\nTest with:\nlet callCount = 0;\nconst square = (n: number): number => { callCount++; return n * n; };\nconst memoizedSquare = memoize(square);\nconst results = [memoizedSquare(4), memoizedSquare(4), memoizedSquare(5), memoizedSquare(4), memoizedSquare(5)];\n[...results, callCount]",
+    "starterCode": "function memoize<T extends (...args: number[]) => number>(fn: T): T {\n  \n}",
+    "hints": [
+      "Declare a `Map<number, number>` outside (in the closure of) the function you return, so it persists across calls.",
+      "Before calling `fn`, check `cache.has(arg)` — if true, return `cache.get(arg)` immediately instead of recomputing.",
+      "If it's a cache miss, compute `fn(arg)`, store it with `cache.set(arg, result)`, then return it — `fn` (and therefore `callCount`) only runs on genuine misses."
+    ],
+    "explanation": "The returned function closes over a `Map` used as a cache: `const cache = new Map<number, number>(); return ((arg: number) => { if (cache.has(arg)) return cache.get(arg)!; const result = fn(arg); cache.set(arg, result); return result; }) as T;`. Because the cache lives in the closure and persists between calls, repeated calls with an already-seen argument skip `fn` entirely — which is why, in the test, `callCount` only reaches 2 (one for `4`, one for `5`) despite `memoizedSquare` being called five times.",
+    "expectedOutput": "[16,16,25,16,25,2]"
+  },
+  {
+    "id": 10,
+    "title": "Safely Parse JSON with a Fallback",
+    "description": "Implement `safeJsonParse<T>(jsonString: string, fallback: T): T` that attempts to `JSON.parse` the given string and returns the parsed result on success, or the provided `fallback` value if parsing throws.\n\nTest with:\nconst validResult = safeJsonParse('{\"x\":1,\"y\":[2,3]}', { x: 0, y: [] });\nconst invalidResult = safeJsonParse('{invalid json}', { x: 0, y: [] });\n[validResult, invalidResult]",
+    "starterCode": "function safeJsonParse<T>(jsonString: string, fallback: T): T {\n  \n}",
+    "hints": [
+      "Wrap the `JSON.parse(jsonString)` call in a `try { ... } catch { ... }` block.",
+      "On success, return the parsed value directly from within the `try` block.",
+      "In the `catch` block, ignore the error and simply return the `fallback` argument that was passed in."
+    ],
+    "explanation": "`JSON.parse` throws a `SyntaxError` on malformed input rather than returning `null` or `undefined`, so a `try/catch` is required to handle it gracefully: `try { return JSON.parse(jsonString) as T; } catch { return fallback; }`. Accepting `fallback: T` (rather than hardcoding a default) keeps the function generic and type-safe — callers get back exactly the type they expect whether parsing succeeds or fails, with no `any` leaking out.",
+    "expectedOutput": "[{\"x\":1,\"y\":[2,3]},{\"x\":0,\"y\":[]}]"
+  }
+]
