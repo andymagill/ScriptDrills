@@ -8,7 +8,9 @@ import {
   Clock,
   Code2,
   BarChart3,
+  ListChecks,
   Trash2,
+  ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -26,6 +28,15 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer"
+import {
   Table,
   TableBody,
   TableCell,
@@ -33,14 +44,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { getStats, getActivityLog, getActiveChallenge, clearAll } from "@/lib/storage"
-import type { ActivityEntry } from "@/types"
+import {
+  getStats,
+  getActiveChallenge,
+  getChallengeSummaries,
+  getChallengeHistory,
+  getFinishedChallengeCount,
+  clearAll,
+} from "@/lib/storage"
+import type { ActivityStatus, ChallengeSummary } from "@/types"
 
 interface DashboardProps {
   onNavigate: (route: string) => void
 }
 
-function statusBadge(status: ActivityEntry["status"]) {
+function statusBadge(status: ActivityStatus) {
   if (status === "correct") {
     return (
       <Badge className="gap-1 bg-emerald-500/15 text-emerald-600 border-emerald-500/30 dark:text-emerald-400 hover:bg-emerald-500/20">
@@ -77,7 +95,9 @@ function formatTime(timestamp: number) {
 
 export function Dashboard({ onNavigate }: DashboardProps) {
   const [stats, setStats] = React.useState(getStats)
-  const [log, setLog] = React.useState(getActivityLog)
+  const [summaries, setSummaries] = React.useState(getChallengeSummaries)
+  const [finishedCount, setFinishedCount] = React.useState(getFinishedChallengeCount)
+  const [selected, setSelected] = React.useState<ChallengeSummary | null>(null)
   const hasActive = getActiveChallenge() !== null
 
   // Warm the code-splitted CodeEditor/CodeMirror chunk while the user is idle on
@@ -98,11 +118,14 @@ export function Dashboard({ onNavigate }: DashboardProps) {
   function handleClear() {
     clearAll()
     setStats(getStats())
-    setLog(getActivityLog())
+    setSummaries(getChallengeSummaries())
+    setFinishedCount(getFinishedChallengeCount())
+    setSelected(null)
   }
 
   const total = stats.totalCorrect + stats.totalIncorrect + stats.totalSkipped
   const accuracy = total > 0 ? Math.round((stats.totalCorrect / total) * 100) : 0
+  const selectedHistory = selected ? getChallengeHistory(selected.challengeId) : []
 
   return (
     <div className="min-h-screen bg-background">
@@ -158,7 +181,17 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <Card className="py-5">
+            <CardContent className="px-5">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Challenges</p>
+                <ListChecks className="size-4 text-primary" />
+              </div>
+              <p className="text-3xl font-bold text-foreground">{finishedCount}</p>
+            </CardContent>
+          </Card>
+
           <Card className="py-5">
             <CardContent className="px-5">
               <div className="flex items-center justify-between mb-2">
@@ -234,11 +267,14 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-lg font-semibold">Activity Log</h3>
-              <p className="text-sm text-muted-foreground">Your last {log.length} attempts</p>
+              <p className="text-sm text-muted-foreground">
+                {summaries.length} challenge{summaries.length === 1 ? "" : "s"} attempted —
+                click one to see its answer history
+              </p>
             </div>
           </div>
 
-          {log.length === 0 ? (
+          {summaries.length === 0 ? (
             <Card>
               <CardContent className="py-12 flex flex-col items-center gap-3 text-center">
                 <div className="size-12 rounded-full bg-muted flex items-center justify-center">
@@ -266,28 +302,30 @@ export function Dashboard({ onNavigate }: DashboardProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[140px]">Status</TableHead>
+                    <TableHead className="w-[140px]">Best Result</TableHead>
                     <TableHead>Challenge</TableHead>
-                    <TableHead className="hidden md:table-cell">Last Submission</TableHead>
-                    <TableHead className="hidden lg:table-cell w-[160px]">Time</TableHead>
+                    <TableHead className="hidden md:table-cell w-[100px]">Attempts</TableHead>
+                    <TableHead className="hidden lg:table-cell w-[160px]">Last Attempt</TableHead>
+                    <TableHead className="w-8" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {log.map((entry) => (
-                    <TableRow key={entry.id}>
-                      <TableCell>{statusBadge(entry.status)}</TableCell>
-                      <TableCell className="font-medium">{entry.challengeTitle}</TableCell>
-                      <TableCell className="hidden md:table-cell max-w-xs">
-                        {entry.submittedCode ? (
-                          <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono text-muted-foreground truncate block max-w-sm">
-                            {entry.submittedCode}
-                          </code>
-                        ) : (
-                          <span className="text-muted-foreground text-xs italic">—</span>
-                        )}
+                  {summaries.map((summary) => (
+                    <TableRow
+                      key={String(summary.challengeId)}
+                      className="cursor-pointer"
+                      onClick={() => setSelected(summary)}
+                    >
+                      <TableCell>{statusBadge(summary.bestStatus)}</TableCell>
+                      <TableCell className="font-medium">{summary.challengeTitle}</TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground">
+                        {summary.attemptCount}
                       </TableCell>
                       <TableCell className="hidden lg:table-cell text-muted-foreground text-xs">
-                        {formatTime(entry.timestamp)}
+                        {formatTime(summary.lastAttemptAt)}
+                      </TableCell>
+                      <TableCell>
+                        <ChevronRight className="size-4 text-muted-foreground" />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -297,6 +335,52 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           )}
         </div>
       </main>
+
+      {/* Per-challenge answer history */}
+      <Drawer
+        open={selected !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null)
+        }}
+      >
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{selected?.challengeTitle}</DrawerTitle>
+            <DrawerDescription>
+              {selectedHistory.length} attempt{selectedHistory.length === 1 ? "" : "s"}
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 pb-4 space-y-2 overflow-y-auto max-h-[60vh]">
+            {selectedHistory.map((entry) => (
+              <div
+                key={entry.id}
+                className="rounded-lg border p-3 space-y-2"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  {statusBadge(entry.status)}
+                  <span className="text-xs text-muted-foreground">
+                    {formatTime(entry.timestamp)}
+                  </span>
+                </div>
+                {entry.submittedCode ? (
+                  <pre className="text-xs bg-muted px-2 py-1.5 rounded font-mono text-muted-foreground whitespace-pre-wrap break-all">
+                    {entry.submittedCode}
+                  </pre>
+                ) : (
+                  <span className="text-muted-foreground text-xs italic">
+                    No code submitted
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+          <DrawerFooter>
+            <DrawerClose asChild>
+              <Button variant="outline">Close</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
   )
 }
