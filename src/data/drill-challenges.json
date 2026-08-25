@@ -1,0 +1,352 @@
+[
+  {
+    "id": "ts-001",
+    "title": "Hello, TypeScript!",
+    "description": "Write a function that returns a personalized greeting string.",
+    "objective": "Return the string \"Hello, TypeScript!\" from your code.",
+    "hints": [
+      "Your code must end with a return statement.",
+      "String literals in JavaScript use single quotes, double quotes, or backticks.",
+      "Example: return \"Hello, World!\""
+    ],
+    "starterCode": "// TODO: return the exact greeting string\n",
+    "expectedOutput": "Hello, TypeScript!",
+    "explanation": "The simplest possible program — return a string literal. In TypeScript, string types can hold any sequence of characters. The return value of your code block is what gets evaluated."
+  },
+  {
+    "id": "ts-002",
+    "title": "Sum Two Numbers",
+    "description": "Add two numbers together and return the result.",
+    "objective": "Return the sum of 42 and 58. The expected output is 100.",
+    "hints": [
+      "Use the + operator to add two numbers.",
+      "You can use variables or add directly: return 42 + 58;",
+      "The result should be the number 100, not a string."
+    ],
+    "starterCode": "const a = 42;\nconst b = 58;\n// TODO: return their sum\n",
+    "expectedOutput": "100",
+    "explanation": "Arithmetic addition with the + operator. When both operands are numbers, JavaScript performs numeric addition. When one is a string, it concatenates — a common source of bugs!"
+  },
+  {
+    "id": "ts-003",
+    "title": "FizzBuzz Classic",
+    "description": "Solve the classic FizzBuzz problem for the number 15.",
+    "objective": "Return \"FizzBuzz\" if the number is divisible by both 3 and 5, \"Fizz\" if only divisible by 3, \"Buzz\" if only by 5, otherwise return the number itself. Test with n = 15.",
+    "hints": [
+      "Use the modulo operator % to check divisibility. n % 3 === 0 means n is divisible by 3.",
+      "Check divisibility by both 3 AND 5 first, before the individual checks.",
+      "For n = 15: 15 % 3 === 0 AND 15 % 5 === 0, so the answer is \"FizzBuzz\"."
+    ],
+    "starterCode": "const n = 15;\n\n// TODO: implement FizzBuzz logic and return the result\n",
+    "expectedOutput": "FizzBuzz",
+    "explanation": "FizzBuzz tests your ability to write conditional logic correctly. The key insight is checking the combined condition (divisible by both 3 AND 5) first — otherwise you'd never reach it."
+  },
+  {
+    "id": "ts-004",
+    "title": "Reverse a String",
+    "description": "Reverse the characters in a given string.",
+    "objective": "Return the string \"hello\" reversed. Expected output: \"olleh\".",
+    "hints": [
+      "Strings in JavaScript are iterable. You can spread them into an array: [...str]",
+      "Arrays have a .reverse() method that reverses elements in-place.",
+      "Arrays have a .join('') method that concatenates all elements into a string."
+    ],
+    "starterCode": "const str = \"hello\";\n// TODO: reverse the string and return it\n",
+    "expectedOutput": "olleh",
+    "explanation": "A classic string manipulation pattern: split into characters → reverse the array → join back. The spread operator [...str] also works as an alternative to .split('')."
+  },
+  {
+    "id": "ts-005",
+    "title": "Array Sum",
+    "description": "Sum all numbers in an array using reduce.",
+    "objective": "Return the sum of all numbers in [1, 2, 3, 4, 5]. Expected output: 15.",
+    "hints": [
+      "Array.reduce() is perfect for accumulating a value across all elements.",
+      "Syntax: arr.reduce((accumulator, current) => accumulator + current, 0)",
+      "The second argument to reduce (0) is the initial value of the accumulator."
+    ],
+    "starterCode": "const nums = [1, 2, 3, 4, 5];\n// TODO: sum all elements and return the total\n",
+    "expectedOutput": "15",
+    "explanation": "Array.prototype.reduce() is a powerful higher-order function. It iterates through the array, passing an accumulator and the current element to your callback. Starting from 0 and adding each element gives us the total sum."
+  },
+  {
+    "id": "ts-006",
+    "title": "Find the Maximum",
+    "description": "Find the largest number in an array without using Math.max.",
+    "objective": "Return the largest number in [3, 7, 1, 9, 4, 6]. Expected output: 9.",
+    "hints": [
+      "You can iterate through the array with a for...of loop.",
+      "Keep track of the current maximum in a variable, starting with the first element.",
+      "Update the max whenever you find a larger number: if (n > max) max = n;"
+    ],
+    "starterCode": "const nums = [3, 7, 1, 9, 4, 6];\n// TODO: find and return the largest number without using Math.max\n",
+    "expectedOutput": "9",
+    "explanation": "Linear search for the maximum. We initialize with the first element (not 0 or -Infinity, to handle all-negative arrays) and update whenever we find something larger. Time complexity: O(n)."
+  },
+  {
+    "id": "ts-007",
+    "title": "Count Vowels",
+    "description": "Count how many vowel characters appear in a string.",
+    "objective": "Return the number of vowels (a, e, i, o, u) in \"programming\". Expected output: 3.",
+    "hints": [
+      "You can use a regular expression: str.match(/[aeiou]/gi) returns an array of matches.",
+      "Alternatively, split into characters and filter for vowels.",
+      "Don't forget to handle both uppercase and lowercase vowels."
+    ],
+    "starterCode": "const str = \"programming\";\n// TODO: count and return the number of vowels (a, e, i, o, u)\n",
+    "expectedOutput": "3",
+    "explanation": "Regular expressions are extremely useful for pattern matching. /[aeiou]/gi matches any character in the set [aeiou], case-insensitively (the 'i' flag), globally (the 'g' flag means find ALL matches, not just the first)."
+  },
+  {
+    "id": "ts-008",
+    "title": "Flatten a Nested Array",
+    "description": "Flatten a one-level nested array into a single array.",
+    "objective": "Return [[1, 2], [3, 4], [5, 6]] flattened to [1, 2, 3, 4, 5, 6]. Return as JSON string.",
+    "hints": [
+      "Array.prototype.flat() flattens one level by default.",
+      "You could also use concat with spread: [].concat(...arr)",
+      "Return JSON.stringify(result) so the output can be compared as a string."
+    ],
+    "starterCode": "const nested = [[1, 2], [3, 4], [5, 6]];\n// TODO: flatten one level and return JSON.stringify(result)\n",
+    "expectedOutput": "[1,2,3,4,5,6]",
+    "explanation": "Array.prototype.flat() was added in ES2019. It flattens nested arrays by one level. For deeper nesting, use flat(Infinity). The JSON.stringify lets us compare array output as a string."
+  },
+  {
+    "id": "ts-009",
+    "title": "Capitalize Words",
+    "description": "Capitalize the first letter of every word in a sentence.",
+    "objective": "Return \"hello world from typescript\" with each word capitalized. Expected: \"Hello World From Typescript\".",
+    "hints": [
+      "Split the sentence into words using .split(' ').",
+      "For each word, capitalize the first character: word[0].toUpperCase() + word.slice(1)",
+      "Join the words back with .join(' ')."
+    ],
+    "starterCode": "const sentence = \"hello world from typescript\";\n// TODO: capitalize the first letter of every word and return the result\n",
+    "expectedOutput": "Hello World From Typescript",
+    "explanation": "A map transformation on an array of words. Each word gets its first character uppercased and the rest sliced unchanged. This pattern (split → transform → join) is a common string manipulation technique."
+  },
+  {
+    "id": "ts-010",
+    "title": "Remove Duplicates",
+    "description": "Remove duplicate values from an array.",
+    "objective": "Return [1, 2, 2, 3, 4, 4, 5] with duplicates removed as JSON. Expected: \"[1,2,3,4,5]\".",
+    "hints": [
+      "The Set data structure only stores unique values.",
+      "You can convert an array to a Set and back: [...new Set(arr)]",
+      "Return JSON.stringify(result) for string comparison."
+    ],
+    "starterCode": "const arr = [1, 2, 2, 3, 4, 4, 5];\n// TODO: remove duplicates and return JSON.stringify(result)\n",
+    "expectedOutput": "[1,2,3,4,5]",
+    "explanation": "The Set constructor accepts any iterable and stores only unique values. Spreading it back with [...set] converts it to an array. This is the most concise way to deduplicate in modern JavaScript — O(n) time complexity."
+  },
+  {
+    "id": "ts-011",
+    "title": "Is Palindrome",
+    "description": "Check if a string reads the same forwards and backwards.",
+    "objective": "Return true if \"racecar\" is a palindrome, false otherwise. Expected output: true.",
+    "hints": [
+      "A palindrome equals its own reverse.",
+      "You can reverse a string with: str.split('').reverse().join('')",
+      "Compare the original to the reversed version with === for strict equality."
+    ],
+    "starterCode": "const str = \"racecar\";\n// TODO: check whether str is a palindrome and return true or false\n",
+    "expectedOutput": "true",
+    "explanation": "A palindrome is a string identical to its reverse. We reverse using the split-reverse-join pattern and use strict equality (===) to compare. Note: a production solution would also normalize case and strip non-alphanumeric characters."
+  },
+  {
+    "id": "ts-012",
+    "title": "Fibonacci Sequence",
+    "description": "Generate the first N numbers of the Fibonacci sequence.",
+    "objective": "Return the first 8 Fibonacci numbers as a JSON array. Expected: \"[0,1,1,2,3,5,8,13]\".",
+    "hints": [
+      "Start with [0, 1]. Each subsequent number is the sum of the two before it.",
+      "Use a loop: for (let i = 2; i < n; i++) { seq.push(seq[i-1] + seq[i-2]); }",
+      "Return JSON.stringify(result) for comparison."
+    ],
+    "starterCode": "const n = 8;\n// TODO: build the first n Fibonacci numbers and return JSON.stringify(result)\n",
+    "expectedOutput": "[0,1,1,2,3,5,8,13]",
+    "explanation": "The Fibonacci sequence demonstrates iterative array building. Each element depends on the previous two. We seed the array with [0, 1] and build from index 2 onward. This O(n) iterative approach is far more efficient than naive recursion."
+  },
+  {
+    "id": "ts-013",
+    "title": "Object Key Count",
+    "description": "Count the number of keys in an object.",
+    "objective": "Return the number of keys in the given person object. Expected output: 4.",
+    "hints": [
+      "Object.keys(obj) returns an array of all enumerable own property names.",
+      "Use .length on the resulting array to count them.",
+      "Alternatively: Object.keys(obj).length"
+    ],
+    "starterCode": "const person = {\n  name: \"Alice\",\n  age: 30,\n  role: \"Engineer\",\n  active: true\n};\n// TODO: return the number of keys in person\n",
+    "expectedOutput": "4",
+    "explanation": "Object.keys() is one of three Object static methods for inspecting properties (alongside Object.values() and Object.entries()). It returns only own enumerable properties, not inherited ones from the prototype chain."
+  },
+  {
+    "id": "ts-014",
+    "title": "Filter and Map Chain",
+    "description": "Filter an array, then transform the remaining items.",
+    "objective": "From [1..10], filter even numbers, then square each. Return as JSON. Expected: \"[4,16,36,64,100]\".",
+    "hints": [
+      "Use .filter(n => n % 2 === 0) to keep only even numbers.",
+      "Chain .map(n => n * n) to square each remaining number.",
+      "Return JSON.stringify(result) for comparison."
+    ],
+    "starterCode": "const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];\n// TODO: filter even numbers, square each, and return JSON.stringify(result)\n",
+    "expectedOutput": "[4,16,36,64,100]",
+    "explanation": "Method chaining makes functional array transformations readable. filter() creates a new array with elements that pass the test, then map() transforms each remaining element. Neither mutates the original array — a key principle of functional programming."
+  },
+  {
+    "id": "ts-015",
+    "title": "Deep Object Merge",
+    "description": "Merge two flat objects together, with the second object's values taking priority.",
+    "objective": "Merge {a: 1, b: 2} and {b: 3, c: 4}. Return JSON. Expected: \"{\\\"a\\\":1,\\\"b\\\":3,\\\"c\\\":4}\".",
+    "hints": [
+      "The spread operator can merge objects: { ...obj1, ...obj2 }",
+      "Later properties override earlier ones when spreading.",
+      "Return JSON.stringify(result) for comparison."
+    ],
+    "starterCode": "const defaults = { a: 1, b: 2 };\nconst overrides = { b: 3, c: 4 };\n// TODO: merge the two objects (overrides wins on conflicts) and return JSON.stringify(result)\n",
+    "expectedOutput": "{\"a\":1,\"b\":3,\"c\":4}",
+    "explanation": "The object spread operator {...obj} creates a shallow copy of an object's properties. When two spreads share a key, the later one wins. This is the modern alternative to Object.assign({}, obj1, obj2) and is widely used for configuration merging and immutable state updates."
+  },
+  {
+    "id": "ts-016",
+    "title": "Group Items by Key",
+    "description": "Implement a generic function that groups an array of objects into a dictionary keyed by a given property, preserving each group's original relative order.",
+    "objective": "Group the items below by their `category` value and return the resulting record.",
+    "hints": [
+      "Iterate through the array and use the value at `item[key]` as the key for your result object.",
+      "Use `String(item[key])` to safely convert the key's value into a string usable as an object key.",
+      "The first time you see a new key value, initialize an empty array for it before pushing the current item."
+    ],
+    "starterCode": "function groupBy<T>(items: T[], key: keyof T): Record<string, T[]> {\n  // TODO: implement grouping logic\n}\n\nconst items = [\n  { category: 'fruit', name: 'apple' },\n  { category: 'vegetable', name: 'carrot' },\n  { category: 'fruit', name: 'banana' },\n  { category: 'vegetable', name: 'potato' },\n  { category: 'grain', name: 'rice' }\n];\n\nreturn groupBy(items, 'category');\n",
+    "expectedOutput": "{\"fruit\":[{\"category\":\"fruit\",\"name\":\"apple\"},{\"category\":\"fruit\",\"name\":\"banana\"}],\"vegetable\":[{\"category\":\"vegetable\",\"name\":\"carrot\"},{\"category\":\"vegetable\",\"name\":\"potato\"}],\"grain\":[{\"category\":\"grain\",\"name\":\"rice\"}]}",
+    "explanation": "The cleanest approach uses `Array.prototype.reduce` to build a `Record<string, T[]>` accumulator: for each item, compute `const groupKey = String(item[key])`, then do `acc[groupKey] = acc[groupKey] ?? []; acc[groupKey].push(item);` before returning `acc`. Typing the parameter as `keyof T` (rather than `string`) gives you compile-time safety — you can't accidentally group by a property that doesn't exist on `T`. Since object property insertion order is preserved for string keys in JavaScript, the resulting groups appear in the order their first member was encountered."
+  },
+  {
+    "id": "ts-017",
+    "title": "Deep Clone a Nested Value",
+    "description": "Implement a function that returns a fully independent deep copy of a value made up of plain objects, arrays, numbers, strings, booleans, and null.",
+    "objective": "Deep-clone the nested `original` value below and return the copy.",
+    "hints": [
+      "If `value` is `null` or not an object (a primitive), just return it directly — primitives are already copied by value.",
+      "If `Array.isArray(value)` is true, return a new array built by recursively cloning each element.",
+      "Otherwise it's a plain object: build a new object and recursively clone each of its own property values."
+    ],
+    "starterCode": "function deepClone<T>(value: T): T {\n  // TODO: implement deep cloning logic\n}\n\nconst original = { a: 1, b: { c: 2, d: [3, 4, { e: 5 }] }, f: null };\n\nreturn deepClone(original);\n",
+    "expectedOutput": "{\"a\":1,\"b\":{\"c\":2,\"d\":[3,4,{\"e\":5}]},\"f\":null}",
+    "explanation": "Deep cloning requires recursion: the base case returns primitives (and `null`) as-is since they're copied by value already. For arrays, `value.map(item => deepClone(item))` recursively clones each element into a brand-new array. For objects, iterate `Object.keys(value)` and assign each recursively-cloned value onto a fresh object, so nested references never alias the original. This differs from `JSON.parse(JSON.stringify(value))`, which silently drops `undefined`/functions and can't handle special types — a manual recursive clone is more explicit and extensible."
+  },
+  {
+    "id": "ts-018",
+    "title": "Flatten a Nested Array to a Depth",
+    "description": "Implement a function that flattens a nested array up to a given depth, without using the built-in Array.prototype.flat.",
+    "objective": "Flatten the `nested` array below to a depth of 2 and return the result.",
+    "hints": [
+      "If `depth <= 0`, just return a shallow copy of the array as-is.",
+      "Otherwise, use `reduce`: for each element, if `Array.isArray(element)` is true, recursively flatten it with `depth - 1` and concat the result; otherwise concat the element itself.",
+      "Remember that `Array.prototype.concat` already merges one level of array automatically, so concatenating a recursively-flattened sub-array won't leave extra nesting."
+    ],
+    "starterCode": "function flattenArray<T>(arr: unknown[], depth: number): T[] {\n  // TODO: implement flattening logic\n}\n\nconst nested = [1, [2, 3, [4, 5, [6, 7]]], 8, [9]];\n\nreturn flattenArray(nested, 2);\n",
+    "expectedOutput": "[1,2,3,4,5,[6,7],8,9]",
+    "explanation": "The idiomatic manual implementation mirrors the native `.flat()` polyfill: `return depth > 0 ? arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? flattenArray(val, depth - 1) : val), []) : arr.slice();`. Each recursive call reduces `depth` by one only when descending into a nested array, so elements deeper than `depth` levels remain nested in the output. Using `concat` (rather than `push`) keeps the code concise since it naturally spreads array arguments by one level."
+  },
+  {
+    "id": "ts-019",
+    "title": "Pluck Specific Object Keys",
+    "description": "Implement a generic function that returns a new object containing only the specified keys, copied from the input object, in the order given.",
+    "objective": "Pluck the `name` and `age` keys from the `user` object below and return the result.",
+    "hints": [
+      "Start with an empty object and cast it to `Pick<T, K>` so TypeScript knows what shape you're building toward.",
+      "Loop over the `keys` array (not `Object.keys(obj)`) so the output only contains — and follows the order of — the requested keys.",
+      "For each key `k` in `keys`, copy `obj[k]` onto your result object under the same key."
+    ],
+    "starterCode": "function pluck<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {\n  // TODO: implement plucking logic\n}\n\nconst user = { id: 1, name: 'Ada', email: 'ada@example.com', age: 30, active: true };\n\nreturn pluck(user, ['name', 'age']);\n",
+    "expectedOutput": "{\"name\":\"Ada\",\"age\":30}",
+    "explanation": "`Pick<T, K>` is a built-in TypeScript utility type that produces a new object type containing only the properties named in `K`. The runtime implementation just needs to iterate the requested `keys` array and copy each property across: `const result = {} as Pick<T, K>; for (const k of keys) { result[k] = obj[k]; } return result;`. Constraining `K extends keyof T` means the compiler rejects any key that doesn't actually exist on `T`, catching typos at compile time rather than producing `undefined` values at runtime."
+  },
+  {
+    "id": "ts-020",
+    "title": "Merge Two Typed Objects",
+    "description": "Implement a function that returns a new object combining two objects, where the second object's values take priority on key collisions (shallow merge only).",
+    "objective": "Merge `target` and `source` below (source wins on conflicts) and return the result.",
+    "hints": [
+      "The object spread operator lets you merge two objects in a single expression.",
+      "Spread `target` first and `source` second — properties spread later always overwrite properties spread earlier with the same key.",
+      "The result naturally has the type `T & U` (an intersection), since it has every property from both `T` and `U`."
+    ],
+    "starterCode": "function mergeObjects<T extends object, U extends object>(target: T, source: U): T & U {\n  // TODO: implement merge logic\n}\n\nconst target = { a: 1, b: 2, c: 3 };\nconst source = { b: 20, d: 4 };\n\nreturn mergeObjects(target, source);\n",
+    "expectedOutput": "{\"a\":1,\"b\":20,\"c\":3,\"d\":4}",
+    "explanation": "The simplest correct implementation is `return { ...target, ...source };`. Object spread copies own enumerable properties left-to-right, so later spreads (`source`) overwrite earlier ones (`target`) when keys collide, matching the desired override behavior. The return type `T & U` is TypeScript's intersection type — it tells consumers the result is guaranteed to have every property from both input types, which is exactly what the merged object provides."
+  },
+  {
+    "id": "ts-021",
+    "title": "Remove Duplicate Objects by Key",
+    "description": "Implement a function that returns a new array with duplicate objects removed, where two objects are considered duplicates if they share the same value for a given key. Keep only the first occurrence.",
+    "objective": "Remove duplicate items from the array below by their `id` and return the result.",
+    "hints": [
+      "Create a `Set` before iterating to keep track of key values you've already seen.",
+      "Use `Array.prototype.filter` and, for each item, check whether `seen.has(item[key])` — if it's already there, filter the item out.",
+      "If the value hasn't been seen yet, add it to the `Set` (e.g. with `seen.add(item[key])`) and keep the item — this preserves first occurrences."
+    ],
+    "starterCode": "function dedupeByKey<T>(items: T[], key: keyof T): T[] {\n  // TODO: implement dedupe logic\n}\n\nconst items = [\n  { id: 1, name: 'a' },\n  { id: 2, name: 'b' },\n  { id: 1, name: 'c' },\n  { id: 3, name: 'd' },\n  { id: 2, name: 'e' }\n];\n\nreturn dedupeByKey(items, 'id');\n",
+    "expectedOutput": "[{\"id\":1,\"name\":\"a\"},{\"id\":2,\"name\":\"b\"},{\"id\":3,\"name\":\"d\"}]",
+    "explanation": "A `Set` gives O(1) average lookup, so the whole operation runs in O(n) time: `const seen = new Set(); return items.filter(item => { const val = item[key]; if (seen.has(val)) return false; seen.add(val); return true; });`. Because `filter` processes items in original order and the `Set` check happens before insertion, the first item for each distinct key value is always the one retained, and everything after it with the same key value is dropped."
+  },
+  {
+    "id": "ts-022",
+    "title": "Sort by Multiple Keys",
+    "description": "Implement a function that returns a new, ascending-sorted array, using each key in order as a tiebreaker for the previous one, without mutating the input array.",
+    "objective": "Sort the `people` array below by `name`, then `age`, and return the result.",
+    "hints": [
+      "Copy the array first (e.g. `[...items]`) before calling `.sort()`, since `.sort()` mutates in place.",
+      "Write a comparator that loops through `keys`; for each key, compare `a[key]` and `b[key]` and return a non-zero result as soon as one is found.",
+      "`a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0` works for comparing both strings and numbers ascending; only move to the next key when this evaluates to `0`."
+    ],
+    "starterCode": "function sortByMultipleKeys<T>(items: T[], keys: (keyof T)[]): T[] {\n  // TODO: implement multi-key sort logic\n}\n\nconst people = [\n  { name: 'Bob', age: 25 },\n  { name: 'Alice', age: 30 },\n  { name: 'Bob', age: 20 },\n  { name: 'Alice', age: 25 }\n];\n\nreturn sortByMultipleKeys(people, ['name', 'age']);\n",
+    "expectedOutput": "[{\"name\":\"Alice\",\"age\":25},{\"name\":\"Alice\",\"age\":30},{\"name\":\"Bob\",\"age\":20},{\"name\":\"Bob\",\"age\":25}]",
+    "explanation": "Copying the array with `[...items]` avoids the classic bug of `.sort()` silently mutating the caller's data. The comparator walks `keys` in priority order: `for (const key of keys) { if (a[key] < b[key]) return -1; if (a[key] > b[key]) return 1; } return 0;`. Returning as soon as a key produces a difference means later keys only get consulted when all earlier keys are equal — exactly the 'tiebreaker' behavior multi-key sorting needs."
+  },
+  {
+    "id": "ts-023",
+    "title": "Curry a Two-Argument Function",
+    "description": "Implement a function that transforms a two-argument function into a curried version, callable as curried(a)(b).",
+    "objective": "Curry the `add` function below, call it as `curriedAdd(3)(4)`, and return the result.",
+    "hints": [
+      "`curry2` should return a function that accepts just the first argument, `a`.",
+      "That returned function should itself return another function — this one accepting `b`.",
+      "Inside the innermost function, call the original `fn(a, b)`, using closure to access the `a` captured by the outer function."
+    ],
+    "starterCode": "function curry2<A, B, R>(fn: (a: A, b: B) => R): (a: A) => (b: B) => R {\n  // TODO: implement currying logic\n}\n\nconst add = (a: number, b: number): number => a + b;\nconst curriedAdd = curry2(add);\n\nreturn curriedAdd(3)(4);\n",
+    "expectedOutput": "7",
+    "explanation": "Currying relies on closures: `return (a: A) => (b: B) => fn(a, b);`. The outer arrow function captures `a` in its closure and returns a new function that, once called with `b`, has access to both `a` and `b` and can finally invoke the original two-argument `fn`. This pattern is the building block behind partial application — calling `curry2(add)(3)` alone yields a reusable 'add 3 to something' function without immediately needing the second argument."
+  },
+  {
+    "id": "ts-024",
+    "title": "Memoize a Numeric Function",
+    "description": "Implement a function that returns a memoized version of a single-argument numeric function — calling it twice with the same argument should only invoke the underlying function once.",
+    "objective": "Memoize `square` below, call it as shown, and return the results plus the final `callCount`.",
+    "hints": [
+      "Declare a `Map<number, number>` outside (in the closure of) the function you return, so it persists across calls.",
+      "Before calling `fn`, check `cache.has(arg)` — if true, return `cache.get(arg)` immediately instead of recomputing.",
+      "If it's a cache miss, compute `fn(arg)`, store it with `cache.set(arg, result)`, then return it — `fn` (and therefore `callCount`) only runs on genuine misses."
+    ],
+    "starterCode": "function memoize<T extends (...args: number[]) => number>(fn: T): T {\n  // TODO: implement memoization logic\n}\n\nlet callCount = 0;\nconst square = (n: number): number => { callCount++; return n * n; };\nconst memoizedSquare = memoize(square);\nconst results = [memoizedSquare(4), memoizedSquare(4), memoizedSquare(5), memoizedSquare(4), memoizedSquare(5)];\n\nreturn [...results, callCount];\n",
+    "expectedOutput": "[16,16,25,16,25,2]",
+    "explanation": "The returned function closes over a `Map` used as a cache: `const cache = new Map<number, number>(); return ((arg: number) => { if (cache.has(arg)) return cache.get(arg)!; const result = fn(arg); cache.set(arg, result); return result; }) as T;`. Because the cache lives in the closure and persists between calls, repeated calls with an already-seen argument skip `fn` entirely — which is why, in the test, `callCount` only reaches 2 (one for `4`, one for `5`) despite `memoizedSquare` being called five times."
+  },
+  {
+    "id": "ts-025",
+    "title": "Safely Parse JSON with a Fallback",
+    "description": "Implement a function that attempts to JSON.parse a string and returns the parsed result on success, or a provided fallback value if parsing throws.",
+    "objective": "Safely parse the valid and invalid JSON strings below and return both results as a pair.",
+    "hints": [
+      "Wrap the `JSON.parse(jsonString)` call in a `try { ... } catch { ... }` block.",
+      "On success, return the parsed value directly from within the `try` block.",
+      "In the `catch` block, ignore the error and simply return the `fallback` argument that was passed in."
+    ],
+    "starterCode": "function safeJsonParse<T>(jsonString: string, fallback: T): T {\n  // TODO: implement safe parsing logic\n}\n\nconst validResult = safeJsonParse('{\"x\":1,\"y\":[2,3]}', { x: 0, y: [] });\nconst invalidResult = safeJsonParse('{invalid json}', { x: 0, y: [] });\n\nreturn [validResult, invalidResult];\n",
+    "expectedOutput": "[{\"x\":1,\"y\":[2,3]},{\"x\":0,\"y\":[]}]",
+    "explanation": "`JSON.parse` throws a `SyntaxError` on malformed input rather than returning `null` or `undefined`, so a `try/catch` is required to handle it gracefully: `try { return JSON.parse(jsonString) as T; } catch { return fallback; }`. Accepting `fallback: T` (rather than hardcoding a default) keeps the function generic and type-safe — callers get back exactly the type they expect whether parsing succeeds or fails, with no `any` leaking out."
+  }
+]

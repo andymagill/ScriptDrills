@@ -22,7 +22,7 @@ import {
 import { CodeEditor } from "@/components/CodeEditor"
 import { recordResult, getActiveChallenge, setActiveChallenge } from "@/lib/storage"
 import { transpileTypeScript } from "@/lib/transpile"
-import challengesData from "@/data/drill-questions.json"
+import challengesData from "@/data/drill-challenges.json"
 import type { Challenge } from "@/types"
 
 const challenges = challengesData as Challenge[]
