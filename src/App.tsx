@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Dashboard } from "@/pages/Dashboard"
 import { Practice } from "@/pages/Practice"
+import { Footer } from "@/components/Footer"
 
 type Route = "dashboard" | "practice"
 
@@ -29,11 +30,16 @@ export function App() {
     setRoute(r)
   }
 
-  if (route === "practice") {
-    return <Practice onNavigate={navigate} />
-  }
-
-  return <Dashboard onNavigate={navigate} />
+  return (
+    <>
+      {route === "practice" ? (
+        <Practice onNavigate={navigate} />
+      ) : (
+        <Dashboard onNavigate={navigate} />
+      )}
+      <Footer />
+    </>
+  )
 }
 
 export default App
