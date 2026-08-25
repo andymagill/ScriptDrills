@@ -31,6 +31,14 @@ export interface ActiveChallenge {
   currentCode: string
 }
 
+export interface ChallengeSummary {
+  challengeId: string | number
+  challengeTitle: string
+  bestStatus: ActivityStatus
+  attemptCount: number
+  lastAttemptAt: number
+}
+
 export interface AppStorage {
   stats: UserStats
   activityLog: ActivityEntry[]

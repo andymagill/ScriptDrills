@@ -45,9 +45,24 @@ so nothing broken reaches the remote. Both are wired via the `prepare` script, s
   challenge's `expectedOutput` string.
 - **Persistence**: all progress (stats, activity log, in-progress challenge) lives in
   `localStorage` under key `ts-sandbox-state`, managed by
-  [src/lib/storage.ts](src/lib/storage.ts). There is no server/database. A separate
-  `sessionStorage` flag (`ts-sandbox-force-new`) tells `Practice.tsx` to load a fresh
-  random challenge instead of resuming the last in-progress one.
+  [src/lib/storage.ts](src/lib/storage.ts), with **no cap** on the activity log — every
+  attempt ever made is kept, so per-challenge history and counts stay exact. There is no
+  server/database. A separate `sessionStorage` flag (`ts-sandbox-force-new`) tells
+  `Practice.tsx` to load a fresh random challenge instead of resuming the last
+  in-progress one.
+- **Dashboard's Activity Log is grouped by challenge, not by attempt**: `getChallengeSummaries()`
+  in `storage.ts` collapses the raw per-attempt log into one row per distinct
+  `challengeId` (title, `bestStatus`, `attemptCount`, `lastAttemptAt`), sorted by most
+  recently attempted. `bestStatus` ranks `correct` > `skipped` > `incorrect`, so a
+  challenge that was failed once and later solved still shows "Correct" — re-solving an
+  already-finished challenge (random selection can repick one) only bumps `attemptCount`,
+  it doesn't create a second row. Clicking a row opens a `Drawer` showing that
+  challenge's full attempt history via `getChallengeHistory(challengeId)` (filters the
+  same log, doesn't re-fetch anything). The "Total Challenges" stat is
+  `getFinishedChallengeCount()` — distinct challenges with a `correct` or `skipped`
+  entry; a challenge currently active/in-progress with only `incorrect` attempts logged
+  doesn't count yet, so this can differ from `totalCorrect + totalSkipped` (which count
+  attempts, not distinct challenges).
 - **UI components**: [src/components/ui/](src/components/ui) is a shadcn/ui component
   set (generated, not hand-written business logic). [src/components/CodeEditor.tsx](src/components/CodeEditor.tsx)
   wraps CodeMirror 6 (`@uiw/react-codemirror`) with the `javascript({ typescript: true })`
@@ -136,8 +151,9 @@ unless you want the *string* itself to be the visible return value).
   don't need explicit imports, though existing tests import them anyway for clarity.
 - Current coverage: [src/lib/storage.test.ts](src/lib/storage.test.ts) covers the
   localStorage-backed stats/activity-log/active-challenge logic in
-  [src/lib/storage.ts](src/lib/storage.ts). Nothing else has tests yet — see gaps
-  below for good next targets.
+  [src/lib/storage.ts](src/lib/storage.ts), including the challenge-grouping helpers
+  (`getChallengeSummaries`, `getChallengeHistory`, `getFinishedChallengeCount`).
+  Nothing else has tests yet — see gaps below for good next targets.
 
 ## Known gaps
 
