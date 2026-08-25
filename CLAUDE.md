@@ -50,8 +50,11 @@ so nothing broken reaches the remote. Both are wired via the `prepare` script, s
   random challenge instead of resuming the last in-progress one.
 - **UI components**: [src/components/ui/](src/components/ui) is a shadcn/ui component
   set (generated, not hand-written business logic). [src/components/CodeEditor.tsx](src/components/CodeEditor.tsx)
-  is a custom textarea-based editor with line numbers (not a full code-editor library
-  like Monaco/CodeMirror) — no syntax highlighting, no autocomplete.
+  wraps CodeMirror 6 (`@uiw/react-codemirror`) with the `javascript({ typescript: true })`
+  language extension (highlighting only — no type-checking) and the `oneDark` theme.
+  Tab inserts indentation (`indentWithTab` + a 2-space `indentUnit`) rather than moving
+  focus, matching the editor's old textarea behavior. `disabled` maps to `editable={false}`
+  plus a dimmed wrapper, since CodeMirror doesn't style read-only state on its own.
 
 ## Data model & authoring conventions
 
@@ -134,7 +137,11 @@ unless you want the *string* itself to be the visible return value).
   repo already had once — asserting no `starterCode` already satisfies its
   `expectedOutput`), a `transpile.ts` unit test, and a React Testing Library
   integration test over the `Practice` run/evaluate flow.
-- Single production JS chunk is ~530 kB (Vite warns about this at build time); not
-  yet code-split.
-- The code editor is a plain `<textarea>` — no syntax highlighting, bracket matching,
-  or autocomplete.
+- Single production JS chunk is ~1 MB (Vite warns about this at build time); not yet
+  code-split. CodeMirror roughly doubled this from its pre-editor size (~530 kB) — a
+  real cost of the syntax-highlighting editor, and the next thing to look at if bundle
+  size becomes a priority (e.g. lazy-loading `CodeEditor` since it's only needed on
+  `/practice`).
+- No bracket matching or autocomplete in the editor (CodeMirror's `javascript()`
+  extension only enables highlighting here — `closeBrackets`/autocompletion would need
+  their own extensions added to `CodeEditor.tsx`).
