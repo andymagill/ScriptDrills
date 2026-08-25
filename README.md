@@ -7,8 +7,6 @@ explanation. Built with Vite, React 19, and shadcn/ui (Tailwind v4).
 There's no backend — code execution, syntax highlighting, and all your
 progress run entirely client-side in the browser.
 
-[![Open in Bolt](https://bolt.new/static/open-in-bolt.svg)](https://bolt.new/~/sb1-dpp6mjv2)
-
 ## Getting started
 
 Requires Node.js 20+.
