@@ -80,6 +80,21 @@ export function Dashboard({ onNavigate }: DashboardProps) {
   const [log, setLog] = React.useState(getActivityLog)
   const hasActive = getActiveChallenge() !== null
 
+  // Warm the code-splitted CodeEditor/CodeMirror chunk while the user is idle on
+  // the Dashboard, so navigating to Practice usually doesn't hit its loading state.
+  // requestIdleCallback isn't available in Safari, so fall back to a timeout.
+  React.useEffect(() => {
+    const prefetch = () => {
+      import("@/components/CodeEditor")
+    }
+    if (typeof requestIdleCallback === "function") {
+      const id = requestIdleCallback(prefetch)
+      return () => cancelIdleCallback(id)
+    }
+    const id = window.setTimeout(prefetch, 1)
+    return () => window.clearTimeout(id)
+  }, [])
+
   function handleClear() {
     clearAll()
     setStats(getStats())

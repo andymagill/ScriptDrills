@@ -19,11 +19,19 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { CodeEditor } from "@/components/CodeEditor"
+import { Skeleton } from "@/components/ui/skeleton"
 import { recordResult, getActiveChallenge, setActiveChallenge } from "@/lib/storage"
 import { transpileTypeScript } from "@/lib/transpile"
 import challengesData from "@/data/drill-challenges.json"
 import type { Challenge } from "@/types"
+
+// CodeMirror pulls in a heavy language/highlighting toolchain (~500kB) that only
+// this page needs, so it's split into its own chunk instead of shipping on every
+// route. Dashboard prefetches it during idle time so it's usually already warm by
+// the time the user navigates here - see the useEffect in Dashboard.tsx.
+const CodeEditor = React.lazy(() =>
+  import("@/components/CodeEditor").then((m) => ({ default: m.CodeEditor }))
+)
 
 const challenges = challengesData as Challenge[]
 
@@ -299,12 +307,16 @@ export function Practice({ onNavigate }: PracticeProps) {
                 Reset code
               </Button>
             </div>
-            <CodeEditor
-              value={code}
-              onChange={setCode}
-              disabled={solved}
-              className="flex-1 min-h-[260px]"
-            />
+            <React.Suspense
+              fallback={<Skeleton className="flex-1 min-h-[260px] rounded-lg" />}
+            >
+              <CodeEditor
+                value={code}
+                onChange={setCode}
+                disabled={solved}
+                className="flex-1 min-h-[260px]"
+              />
+            </React.Suspense>
           </div>
 
           {/* Control bar */}

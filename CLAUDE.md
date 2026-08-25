@@ -55,6 +55,15 @@ so nothing broken reaches the remote. Both are wired via the `prepare` script, s
   Tab inserts indentation (`indentWithTab` + a 2-space `indentUnit`) rather than moving
   focus, matching the editor's old textarea behavior. `disabled` maps to `editable={false}`
   plus a dimmed wrapper, since CodeMirror doesn't style read-only state on its own.
+- **Code splitting**: `CodeEditor` is loaded via `React.lazy` in `Practice.tsx` (wrapped
+  in a `Suspense` with a `Skeleton` fallback matching its size) rather than imported
+  statically, so CodeMirror's ~500 kB doesn't ship in the main bundle Dashboard also
+  pays for. `Dashboard.tsx` has a `useEffect` that prefetches the `CodeEditor` chunk via
+  `requestIdleCallback` (falling back to `setTimeout` where unsupported, e.g. Safari) so
+  it's usually already cached by the time a user navigates to `/practice` — the
+  `Suspense` fallback is a genuine fallback for the fast path, not the expected UX. If
+  more routes/heavy components are added, follow the same pattern: lazy-load the heavy
+  piece, eager-prefetch it from whatever screen precedes it.
 
 ## Data model & authoring conventions
 
@@ -137,11 +146,6 @@ unless you want the *string* itself to be the visible return value).
   repo already had once — asserting no `starterCode` already satisfies its
   `expectedOutput`), a `transpile.ts` unit test, and a React Testing Library
   integration test over the `Practice` run/evaluate flow.
-- Single production JS chunk is ~1 MB (Vite warns about this at build time); not yet
-  code-split. CodeMirror roughly doubled this from its pre-editor size (~530 kB) — a
-  real cost of the syntax-highlighting editor, and the next thing to look at if bundle
-  size becomes a priority (e.g. lazy-loading `CodeEditor` since it's only needed on
-  `/practice`).
 - No bracket matching or autocomplete in the editor (CodeMirror's `javascript()`
   extension only enables highlighting here — `closeBrackets`/autocompletion would need
   their own extensions added to `CodeEditor.tsx`).
