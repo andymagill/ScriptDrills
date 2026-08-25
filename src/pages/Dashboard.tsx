@@ -187,7 +187,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
 
         {/* CTA Buttons */}
         <div className="flex flex-wrap gap-3">
-          {hasActive && (
+          {hasActive ? (
             <Button
               size="lg"
               className="gap-2"
@@ -196,20 +196,20 @@ export function Dashboard({ onNavigate }: DashboardProps) {
               <Play className="size-4" />
               Continue Most Recent Challenge
             </Button>
+          ) : (
+            <Button
+              size="lg"
+              className="gap-2"
+              onClick={() => {
+                // Signal practice page to load a random challenge
+                sessionStorage.setItem("ts-sandbox-force-new", "1")
+                onNavigate("practice")
+              }}
+            >
+              <Shuffle className="size-4" />
+              Start Random Challenge
+            </Button>
           )}
-          <Button
-            size="lg"
-            variant={hasActive ? "outline" : "default"}
-            className="gap-2"
-            onClick={() => {
-              // Signal practice page to load a random challenge
-              sessionStorage.setItem("ts-sandbox-force-new", "1")
-              onNavigate("practice")
-            }}
-          >
-            <Shuffle className="size-4" />
-            Start Random Challenge
-          </Button>
         </div>
 
         <Separator />
