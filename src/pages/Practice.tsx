@@ -47,7 +47,6 @@ function evaluateCode(code: string): { result: unknown; error: string | null } {
   try {
     const jsCode = transpileTypeScript(code)
     const wrapped = `"use strict";\n${jsCode}`
-    // eslint-disable-next-line no-new-func
     const fn = new Function(wrapped)
     const result = fn()
     return { result, error: null }
