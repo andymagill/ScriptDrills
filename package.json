@@ -3,6 +3,12 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
+  "license": "MIT",
+  "author": {
+    "name": "Andrew Magill",
+    "url": "https://magill.dev"
+  },
+  "homepage": "https://github.com/andymagill/ScriptDrills",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
