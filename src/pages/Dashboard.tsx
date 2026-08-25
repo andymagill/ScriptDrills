@@ -80,6 +80,21 @@ export function Dashboard({ onNavigate }: DashboardProps) {
   const [log, setLog] = React.useState(getActivityLog)
   const hasActive = getActiveChallenge() !== null
 
+  // Warm the code-splitted CodeEditor/CodeMirror chunk while the user is idle on
+  // the Dashboard, so navigating to Practice usually doesn't hit its loading state.
+  // requestIdleCallback isn't available in Safari, so fall back to a timeout.
+  React.useEffect(() => {
+    const prefetch = () => {
+      import("@/components/CodeEditor")
+    }
+    if (typeof requestIdleCallback === "function") {
+      const id = requestIdleCallback(prefetch)
+      return () => cancelIdleCallback(id)
+    }
+    const id = window.setTimeout(prefetch, 1)
+    return () => window.clearTimeout(id)
+  }, [])
+
   function handleClear() {
     clearAll()
     setStats(getStats())
@@ -187,7 +202,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
 
         {/* CTA Buttons */}
         <div className="flex flex-wrap gap-3">
-          {hasActive && (
+          {hasActive ? (
             <Button
               size="lg"
               className="gap-2"
@@ -196,20 +211,20 @@ export function Dashboard({ onNavigate }: DashboardProps) {
               <Play className="size-4" />
               Continue Most Recent Challenge
             </Button>
+          ) : (
+            <Button
+              size="lg"
+              className="gap-2"
+              onClick={() => {
+                // Signal practice page to load a random challenge
+                sessionStorage.setItem("ts-sandbox-force-new", "1")
+                onNavigate("practice")
+              }}
+            >
+              <Shuffle className="size-4" />
+              Start Random Challenge
+            </Button>
           )}
-          <Button
-            size="lg"
-            variant={hasActive ? "outline" : "default"}
-            className="gap-2"
-            onClick={() => {
-              // Signal practice page to load a random challenge
-              sessionStorage.setItem("ts-sandbox-force-new", "1")
-              onNavigate("practice")
-            }}
-          >
-            <Shuffle className="size-4" />
-            Start Random Challenge
-          </Button>
         </div>
 
         <Separator />
