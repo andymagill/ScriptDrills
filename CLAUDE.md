@@ -77,6 +77,18 @@ so nothing broken reaches the remote. Both are wired via the `prepare` script, s
   Tab inserts indentation (`indentWithTab` + a 2-space `indentUnit`) rather than moving
   focus, matching the editor's old textarea behavior. `disabled` maps to `editable={false}`
   plus a dimmed wrapper, since CodeMirror doesn't style read-only state on its own.
+- **Theming**: [src/index.css](src/index.css) is a custom tweakCN-exported theme (teal
+  primary, `--radius: 0.1rem` for near-square corners), not shadcn's default neutral
+  preset — see the comment block at the top of that file before regenerating it via the
+  shadcn CLI, which would silently overwrite it. `--font-sans` (Open Sans) and
+  `--font-serif` (Source Serif 4) are loaded from Google Fonts in `index.html`;
+  `--font-mono` names "Google Sans Code" first but that font isn't publicly available, so
+  it falls back to the system-monospace stack. `ThemeProvider` (`src/components/theme-provider.tsx`)
+  and `ModeToggle` (`src/components/mode-toggle.tsx`) predate this theme and already
+  supported light/dark/system — `ModeToggle` just wasn't rendered anywhere until now; it's
+  in both page headers. `CodeEditor`'s `oneDark` CodeMirror theme and `Practice.tsx`'s
+  console-output panel are intentionally hardcoded dark regardless of light/dark mode
+  (common for code editors/consoles) — they don't follow the `:root`/`.dark` tokens.
 - **Code splitting**: `CodeEditor` is loaded via `React.lazy` in `Practice.tsx` (wrapped
   in a `Suspense` with a `Skeleton` fallback matching its size) rather than imported
   statically, so CodeMirror's ~500 kB doesn't ship in the main bundle Dashboard also

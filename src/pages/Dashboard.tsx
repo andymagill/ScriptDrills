@@ -44,6 +44,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { ModeToggle } from "@/components/mode-toggle"
 import {
   getStats,
   getActiveChallenge,
@@ -142,6 +143,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <ModeToggle />
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="text-muted-foreground gap-1.5">

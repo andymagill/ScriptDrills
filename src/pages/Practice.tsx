@@ -20,6 +20,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ModeToggle } from "@/components/mode-toggle"
 import { recordResult, getActiveChallenge, setActiveChallenge } from "@/lib/storage"
 import { transpileTypeScript } from "@/lib/transpile"
 import challengesData from "@/data/drill-challenges.json"
@@ -214,9 +215,12 @@ export function Practice({ onNavigate }: PracticeProps) {
               <span className="text-sm font-medium">TypeScript Sandbox</span>
             </div>
           </div>
-          <Badge variant="outline" className="font-mono text-xs">
-            {challenge.id}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <ModeToggle />
+            <Badge variant="outline" className="font-mono text-xs">
+              {challenge.id}
+            </Badge>
+          </div>
         </div>
       </header>
 
