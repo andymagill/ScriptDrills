@@ -125,16 +125,16 @@ model works under the hood.
 ## Deployment
 
 The app is a static build with no backend, deployed to
-[Cloudflare Pages](https://pages.cloudflare.com/) at
-[scriptdrills.magill.dev](https://scriptdrills.magill.dev/) via its native Git
+[Cloudflare Workers static assets](https://developers.cloudflare.com/workers/static-assets/)
+at [scriptdrills.magill.dev](https://scriptdrills.magill.dev/) via the native Git
 integration — every push to `main` builds and deploys automatically, and
 every pull request gets its own preview deployment.
 
-To connect a new Cloudflare Pages project to this repo (already done for the
+To connect a new Cloudflare project to this repo (already done for the
 production deployment above — these are the settings that were used):
 
-1. In the Cloudflare dashboard, go to **Workers & Pages → Create → Pages →
-   Connect to Git**, and select this repository.
+1. In the Cloudflare dashboard, go to **Workers & Pages → Create**, and connect
+   this repository.
 2. Framework preset: **Vite** (or set manually — see below).
 3. Build command: `npm run build`
 4. Build output directory: `dist`
@@ -144,11 +144,20 @@ Cloudflare reads the Node version to build with from
 [`.node-version`](.node-version) automatically — no extra environment
 variable needed.
 
-[`public/_redirects`](public/_redirects) tells Cloudflare Pages to serve
-`index.html` for every path (`/* /index.html 200`). This app uses real
-client-side routing (`/practice` is pushed via `history.pushState`, not a
-`#/practice` hash), so without this file a direct link, bookmark, or
-refresh on `/practice` would 404 — only in-app navigation would work.
+### SPA routing
+
+[`wrangler.jsonc`](wrangler.jsonc) sets `assets.not_found_handling` to
+`"single-page-application"`, which serves `index.html` with a `200` for any
+request that doesn't match a built file. This app uses real client-side routing
+(`/practice` is pushed via `history.pushState`, not a `#/practice` hash), so
+without it a direct link, bookmark, or refresh on `/practice` would 404 — only
+in-app navigation would work.
+
+> **Note:** don't swap this for a `public/_redirects` file with
+> `/* /index.html 200`. That's the Cloudflare Pages-era approach; on Workers it
+> fails the deploy with *"Infinite loop detected in this rule"* (error 100324),
+> a known validator false-positive
+> ([workers-sdk#11824](https://github.com/cloudflare/workers-sdk/issues/11824)).
 
 ## License
 

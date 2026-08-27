@@ -29,13 +29,21 @@ so nothing broken reaches the remote. Both are wired via the `prepare` script, s
 - **Routing**: hand-rolled in [src/App.tsx](src/App.tsx) — no router library. Reads
   `window.location.pathname` (`/practice`) or a `#practice` hash to pick between two
   pages, and pushes history state on navigation. Because `/practice` is a real
-  pathname (not just a hash), the static host must serve `index.html` for every
-  path — see [public/_redirects](public/_redirects) — or a direct link/refresh on
-  `/practice` 404s.
-- **Deployment**: Cloudflare Pages, via its native Git integration — no CI config
-  in this repo. Every push to `main` builds (`npm run build`, output `dist`) and
-  deploys automatically; PRs get preview deployments. Node version for the build
-  comes from [.node-version](.node-version).
+  pathname (not just a hash), the host must serve `index.html` for every unmatched
+  path — see the `assets.not_found_handling` setting in
+  [wrangler.jsonc](wrangler.jsonc) — or a direct link/refresh on `/practice` 404s.
+- **Deployment**: Cloudflare **Workers** static assets (not classic Pages), via
+  the native Git integration — no CI config in this repo. Every push to `main`
+  builds (`npm run build`, output `dist`) and deploys automatically; PRs get
+  preview deployments. Node version for the build comes from
+  [.node-version](.node-version); asset/SPA behavior comes from
+  [wrangler.jsonc](wrangler.jsonc).
+  **Don't reintroduce a `public/_redirects` file for SPA fallback.** The
+  Pages-era rule `/* /index.html 200` is rejected on this platform with
+  "Infinite loop detected in this rule" (error 100324) — a known validator
+  false-positive ([workers-sdk#11824](https://github.com/cloudflare/workers-sdk/issues/11824)) —
+  and it broke production deploys once already. `not_found_handling` is the
+  supported mechanism here.
 - **Pages**: [src/pages/Dashboard.tsx](src/pages/Dashboard.tsx) (stats + activity log)
   and [src/pages/Practice.tsx](src/pages/Practice.tsx) (the challenge workspace —
   editor, run/skip controls, console output, hints, explanation).
