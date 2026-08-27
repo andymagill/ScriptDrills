@@ -9,6 +9,9 @@
     "url": "https://magill.dev"
   },
   "homepage": "https://github.com/andymagill/ScriptDrills",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
