@@ -28,7 +28,14 @@ so nothing broken reaches the remote. Both are wired via the `prepare` script, s
 
 - **Routing**: hand-rolled in [src/App.tsx](src/App.tsx) — no router library. Reads
   `window.location.pathname` (`/practice`) or a `#practice` hash to pick between two
-  pages, and pushes history state on navigation.
+  pages, and pushes history state on navigation. Because `/practice` is a real
+  pathname (not just a hash), the static host must serve `index.html` for every
+  path — see [public/_redirects](public/_redirects) — or a direct link/refresh on
+  `/practice` 404s.
+- **Deployment**: Cloudflare Pages, via its native Git integration — no CI config
+  in this repo. Every push to `main` builds (`npm run build`, output `dist`) and
+  deploys automatically; PRs get preview deployments. Node version for the build
+  comes from [.node-version](.node-version).
 - **Pages**: [src/pages/Dashboard.tsx](src/pages/Dashboard.tsx) (stats + activity log)
   and [src/pages/Practice.tsx](src/pages/Practice.tsx) (the challenge workspace —
   editor, run/skip controls, console output, hints, explanation).

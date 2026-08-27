@@ -9,7 +9,7 @@ progress run entirely client-side in the browser.
 
 ## Getting started
 
-Requires Node.js 20+.
+Requires Node.js 20.19+ or 22.12+ (Vite 7's minimum).
 
 ```bash
 npm install
@@ -119,6 +119,32 @@ To add one:
 See `CLAUDE.md` for more detail on the two supported `starterCode` shapes
 (inline-fixture vs. function-under-test) and how the execution/comparison
 model works under the hood.
+
+## Deployment
+
+The app is a static build with no backend, deployed to
+[Cloudflare Pages](https://pages.cloudflare.com/) via its native Git
+integration — every push to `main` builds and deploys automatically, and
+every pull request gets its own preview deployment.
+
+To connect a new Cloudflare Pages project to this repo:
+
+1. In the Cloudflare dashboard, go to **Workers & Pages → Create → Pages →
+   Connect to Git**, and select this repository.
+2. Framework preset: **Vite** (or set manually — see below).
+3. Build command: `npm run build`
+4. Build output directory: `dist`
+5. Leave the root directory as `/`.
+
+Cloudflare reads the Node version to build with from
+[`.node-version`](.node-version) automatically — no extra environment
+variable needed.
+
+[`public/_redirects`](public/_redirects) tells Cloudflare Pages to serve
+`index.html` for every path (`/* /index.html 200`). This app uses real
+client-side routing (`/practice` is pushed via `history.pushState`, not a
+`#/practice` hash), so without this file a direct link, bookmark, or
+refresh on `/practice` would 404 — only in-app navigation would work.
 
 ## License
 
