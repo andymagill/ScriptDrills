@@ -1,0 +1,23 @@
+{
+  // Cloudflare Workers static-assets config. This project is assets-only (no
+  // Worker script), so there's no "main" entrypoint - Cloudflare just serves
+  // the Vite build output.
+  //
+  // "not_found_handling": "single-page-application" is what makes client-side
+  // routing work: any request that doesn't match a file in "directory" serves
+  // /index.html with a 200. Without it, loading /practice directly (a real
+  // pushState pathname, not a hash route) would 404 - only in-app navigation
+  // would work.
+  //
+  // This replaces a public/_redirects file with the rule `/* /index.html 200`,
+  // which Cloudflare's deploy rejected with "Infinite loop detected in this
+  // rule" (error 100324). That rule is the Pages-era approach and trips a known
+  // validator false-positive on Workers:
+  // https://github.com/cloudflare/workers-sdk/issues/11824
+  "name": "scriptdrills",
+  "compatibility_date": "2026-08-27",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
