@@ -22,9 +22,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { ModeToggle } from "@/components/mode-toggle"
 import { recordResult, getActiveChallenge, setActiveChallenge } from "@/lib/storage"
-import { transpileTypeScript } from "@/lib/transpile"
+import { evaluateCode, stringifyResult } from "@/lib/run-code"
+import { instantiateChallenge } from "@/lib/challenge-instance"
 import challengesData from "@/data/drill-challenges.json"
-import type { Challenge } from "@/types"
+import type { Challenge, ChallengeInstance } from "@/types"
 
 // CodeMirror pulls in a heavy language/highlighting toolchain (~500kB) that only
 // this page needs, so it's split into its own chunk instead of shipping on every
@@ -52,76 +53,55 @@ function pickRandomChallenge(excludeId?: string | number): Challenge {
   return pool[Math.floor(Math.random() * pool.length)]
 }
 
-function evaluateCode(code: string): { result: unknown; error: string | null } {
-  try {
-    const jsCode = transpileTypeScript(code)
-    const wrapped = `"use strict";\n${jsCode}`
-    const fn = new Function(wrapped)
-    const result = fn()
-    return { result, error: null }
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    return { result: null, error: message }
-  }
-}
-
-function stringifyResult(value: unknown): string {
-  if (value === null) return "null"
-  if (value === undefined) return "undefined"
-  if (typeof value === "string") return value
-  if (typeof value === "object") {
-    try {
-      return JSON.stringify(value)
-    } catch {
-      return String(value)
-    }
-  }
-  return String(value)
+const READY_LINE: ConsoleLine = {
+  type: "info",
+  text: "Console ready. Click \"Run Code\" to evaluate your solution.",
 }
 
 export function Practice({ onNavigate }: PracticeProps) {
-  const [challenge, setChallenge] = React.useState<Challenge>(() => {
+  // Randomized challenges roll fresh values on each instantiation, so the
+  // instance itself - not just the challengeId - has to be what's persisted
+  // and resumed, or refreshing mid-attempt would silently reroll the values
+  // you're solving against.
+  const [instance, setInstance] = React.useState<ChallengeInstance>(() => {
     const forceNew = sessionStorage.getItem("ts-sandbox-force-new") === "1"
-    if (forceNew) {
-      sessionStorage.removeItem("ts-sandbox-force-new")
-      return pickRandomChallenge()
+    if (forceNew) sessionStorage.removeItem("ts-sandbox-force-new")
+
+    if (!forceNew) {
+      const active = getActiveChallenge()
+      if (active?.instance) return active.instance
+      if (active) {
+        const found = challenges.find((c) => c.id === active.challengeId)
+        if (found) return instantiateChallenge(found)
+      }
     }
-    const active = getActiveChallenge()
-    if (active) {
-      const found = challenges.find((c) => c.id === active.challengeId)
-      if (found) return found
-    }
-    return pickRandomChallenge()
+
+    return instantiateChallenge(pickRandomChallenge())
   })
 
   const [code, setCode] = React.useState<string>(() => {
-    const forceNew = sessionStorage.getItem("ts-sandbox-force-new") !== "1"
     const active = getActiveChallenge()
-    if (forceNew && active && active.challengeId === challenge.id) {
+    if (active?.instance && active.challengeId === instance.challengeId) {
       return active.currentCode
     }
-    return challenge.starterCode
+    return instance.starterCode
   })
 
-  const [consoleLines, setConsoleLines] = React.useState<ConsoleLine[]>([
-    { type: "info", text: "Console ready. Click \"Run Code\" to evaluate your solution." },
-  ])
+  const [consoleLines, setConsoleLines] = React.useState<ConsoleLine[]>([READY_LINE])
   const [solved, setSolved] = React.useState(false)
   const [showExplanation, setShowExplanation] = React.useState(false)
 
-  // Persist active challenge whenever challenge/code changes
+  // Persist active challenge whenever instance/code changes
   React.useEffect(() => {
-    setActiveChallenge({ challengeId: challenge.id, currentCode: code })
-  }, [challenge, code])
+    setActiveChallenge({ challengeId: instance.challengeId, currentCode: code, instance })
+  }, [instance, code])
 
-  function loadChallenge(newChallenge: Challenge) {
-    setChallenge(newChallenge)
-    setCode(newChallenge.starterCode)
+  function loadChallenge(newInstance: ChallengeInstance) {
+    setInstance(newInstance)
+    setCode(newInstance.starterCode)
     setSolved(false)
     setShowExplanation(false)
-    setConsoleLines([
-      { type: "info", text: "Console ready. Click \"Run Code\" to evaluate your solution." },
-    ])
+    setConsoleLines([READY_LINE])
   }
 
   function handleRun() {
@@ -133,29 +113,31 @@ export function Practice({ onNavigate }: PracticeProps) {
         { type: "error", text: `Error: ${error}` },
       ])
       recordResult({
-        challengeId: challenge.id,
-        challengeTitle: challenge.title,
+        challengeId: instance.challengeId,
+        challengeTitle: instance.title,
         status: "incorrect",
         submittedCode: code,
+        expectedOutput: instance.expectedOutput,
       })
       setSolved(false)
       return
     }
 
     const output = stringifyResult(result)
-    const isCorrect = output === challenge.expectedOutput
+    const isCorrect = output === instance.expectedOutput
 
     if (isCorrect) {
       setConsoleLines((prev) => [
         ...prev,
         { type: "success", text: `Output: ${output}` },
-        { type: "success", text: `Correct! Expected "${challenge.expectedOutput}".` },
+        { type: "success", text: `Correct! Expected "${instance.expectedOutput}".` },
       ])
       recordResult({
-        challengeId: challenge.id,
-        challengeTitle: challenge.title,
+        challengeId: instance.challengeId,
+        challengeTitle: instance.title,
         status: "correct",
         submittedCode: code,
+        expectedOutput: instance.expectedOutput,
       })
       setSolved(true)
       setShowExplanation(true)
@@ -163,13 +145,14 @@ export function Practice({ onNavigate }: PracticeProps) {
       setConsoleLines((prev) => [
         ...prev,
         { type: "error", text: `Output: ${output}` },
-        { type: "error", text: `Incorrect. Expected "${challenge.expectedOutput}".` },
+        { type: "error", text: `Incorrect. Expected "${instance.expectedOutput}".` },
       ])
       recordResult({
-        challengeId: challenge.id,
-        challengeTitle: challenge.title,
+        challengeId: instance.challengeId,
+        challengeTitle: instance.title,
         status: "incorrect",
         submittedCode: code,
+        expectedOutput: instance.expectedOutput,
       })
       setSolved(false)
     }
@@ -177,20 +160,21 @@ export function Practice({ onNavigate }: PracticeProps) {
 
   function handleSkip() {
     recordResult({
-      challengeId: challenge.id,
-      challengeTitle: challenge.title,
+      challengeId: instance.challengeId,
+      challengeTitle: instance.title,
       status: "skipped",
       submittedCode: code,
+      expectedOutput: instance.expectedOutput,
     })
-    loadChallenge(pickRandomChallenge(challenge.id))
+    loadChallenge(instantiateChallenge(pickRandomChallenge(instance.challengeId)))
   }
 
   function handleNext() {
-    loadChallenge(pickRandomChallenge(challenge.id))
+    loadChallenge(instantiateChallenge(pickRandomChallenge(instance.challengeId)))
   }
 
   function handleResetCode() {
-    setCode(challenge.starterCode)
+    setCode(instance.starterCode)
     setSolved(false)
     setShowExplanation(false)
   }
@@ -218,7 +202,7 @@ export function Practice({ onNavigate }: PracticeProps) {
           <div className="flex items-center gap-2">
             <ModeToggle />
             <Badge variant="outline" className="font-mono text-xs">
-              {challenge.id}
+              {instance.challengeId}
             </Badge>
           </div>
         </div>
@@ -230,9 +214,9 @@ export function Practice({ onNavigate }: PracticeProps) {
         <div className="lg:w-[440px] lg:shrink-0 lg:border-r border-b lg:border-b-0 bg-card/30">
           <div className="p-6 space-y-5 lg:max-h-[calc(100vh-57px)] lg:overflow-y-auto">
             <div>
-              <h1 className="text-xl font-bold tracking-tight">{challenge.title}</h1>
+              <h1 className="text-xl font-bold tracking-tight">{instance.title}</h1>
               <p className="text-sm text-muted-foreground mt-1.5">
-                {challenge.description}
+                {instance.description}
               </p>
             </div>
 
@@ -242,7 +226,7 @@ export function Practice({ onNavigate }: PracticeProps) {
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
                   Objective
                 </p>
-                <p className="text-sm text-foreground">{challenge.objective ?? challenge.description}</p>
+                <p className="text-sm text-foreground">{instance.objective ?? instance.description}</p>
               </div>
             </div>
 
@@ -256,7 +240,7 @@ export function Practice({ onNavigate }: PracticeProps) {
                 </AccordionTrigger>
                 <AccordionContent className="px-4">
                   <ul className="space-y-2 pb-2">
-                    {challenge.hints.map((hint, i) => (
+                    {instance.hints.map((hint, i) => (
                       <li key={i} className="text-sm text-muted-foreground flex gap-2">
                         <span className="text-foreground/40 font-mono text-xs shrink-0 mt-0.5">
                           {i + 1}.
@@ -276,7 +260,7 @@ export function Practice({ onNavigate }: PracticeProps) {
                   <p className="text-sm font-semibold">Explanation</p>
                 </div>
                 <p className="text-sm text-foreground/80 leading-relaxed">
-                  {challenge.explanation}
+                  {instance.explanation}
                 </p>
               </div>
             )}

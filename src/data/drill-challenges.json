@@ -25,7 +25,18 @@
     ],
     "starterCode": "const a = 42;\nconst b = 58;\n// TODO: return their sum\n",
     "expectedOutput": "100",
-    "explanation": "Arithmetic addition with the + operator. When both operands are numbers, JavaScript performs numeric addition. When one is a string, it concatenates — a common source of bugs!"
+    "explanation": "Arithmetic addition with the + operator. When both operands are numbers, JavaScript performs numeric addition. When one is a string, it concatenates — a common source of bugs!",
+    "randomize": {
+      "generate": "return { a: randInt(1, 99), b: randInt(1, 99) }",
+      "solve": "return a + b",
+      "starterCode": "const a = {{a}};\nconst b = {{b}};\n// TODO: return their sum\n",
+      "objective": "Return the sum of {{a}} and {{b}}. The expected output is {{__answer}}.",
+      "hints": [
+        "Use the + operator to add two numbers.",
+        "You can use variables or add directly: return {{a}} + {{b}};",
+        "The result should be the number {{__answer}}, not a string."
+      ]
+    }
   },
   {
     "id": "ts-003",
@@ -67,7 +78,13 @@
     ],
     "starterCode": "const nums = [1, 2, 3, 4, 5];\n// TODO: sum all elements and return the total\n",
     "expectedOutput": "15",
-    "explanation": "Array.prototype.reduce() is a powerful higher-order function. It iterates through the array, passing an accumulator and the current element to your callback. Starting from 0 and adding each element gives us the total sum."
+    "explanation": "Array.prototype.reduce() is a powerful higher-order function. It iterates through the array, passing an accumulator and the current element to your callback. Starting from 0 and adding each element gives us the total sum.",
+    "randomize": {
+      "generate": "return { nums: Array.from({ length: randInt(4, 7) }, () => randInt(1, 20)) }",
+      "solve": "return nums.reduce((acc, n) => acc + n, 0)",
+      "starterCode": "const nums = {{nums}};\n// TODO: sum all elements and return the total\n",
+      "objective": "Return the sum of all numbers in {{nums}}. Expected output: {{__answer}}."
+    }
   },
   {
     "id": "ts-006",
@@ -81,7 +98,13 @@
     ],
     "starterCode": "const nums = [3, 7, 1, 9, 4, 6];\n// TODO: find and return the largest number without using Math.max\n",
     "expectedOutput": "9",
-    "explanation": "Linear search for the maximum. We initialize with the first element (not 0 or -Infinity, to handle all-negative arrays) and update whenever we find something larger. Time complexity: O(n)."
+    "explanation": "Linear search for the maximum. We initialize with the first element (not 0 or -Infinity, to handle all-negative arrays) and update whenever we find something larger. Time complexity: O(n).",
+    "randomize": {
+      "generate": "return { nums: Array.from({ length: randInt(5, 8) }, () => randInt(-20, 50)) }",
+      "solve": "let max = nums[0]; for (const n of nums) { if (n > max) max = n; } return max;",
+      "starterCode": "const nums = {{nums}};\n// TODO: find and return the largest number without using Math.max\n",
+      "objective": "Return the largest number in {{nums}}. Expected output: {{__answer}}."
+    }
   },
   {
     "id": "ts-007",
@@ -95,7 +118,13 @@
     ],
     "starterCode": "const str = \"programming\";\n// TODO: count and return the number of vowels (a, e, i, o, u)\n",
     "expectedOutput": "3",
-    "explanation": "Regular expressions are extremely useful for pattern matching. /[aeiou]/gi matches any character in the set [aeiou], case-insensitively (the 'i' flag), globally (the 'g' flag means find ALL matches, not just the first)."
+    "explanation": "Regular expressions are extremely useful for pattern matching. /[aeiou]/gi matches any character in the set [aeiou], case-insensitively (the 'i' flag), globally (the 'g' flag means find ALL matches, not just the first).",
+    "randomize": {
+      "generate": "return { str: randFrom([\"programming\", \"typescript\", \"algorithm\", \"javascript\", \"education\", \"beautiful\"]) }",
+      "solve": "const vowels = str.match(/[aeiou]/gi); return vowels ? vowels.length : 0;",
+      "starterCode": "const str = {{str}};\n// TODO: count and return the number of vowels (a, e, i, o, u)\n",
+      "objective": "Return the number of vowels (a, e, i, o, u) in {{str}}. Expected output: {{__answer}}."
+    }
   },
   {
     "id": "ts-008",
@@ -221,7 +250,12 @@
     ],
     "starterCode": "function groupBy<T>(items: T[], key: keyof T): Record<string, T[]> {\n  // TODO: implement grouping logic\n}\n\nconst items = [\n  { category: 'fruit', name: 'apple' },\n  { category: 'vegetable', name: 'carrot' },\n  { category: 'fruit', name: 'banana' },\n  { category: 'vegetable', name: 'potato' },\n  { category: 'grain', name: 'rice' }\n];\n\nreturn groupBy(items, 'category');\n",
     "expectedOutput": "{\"fruit\":[{\"category\":\"fruit\",\"name\":\"apple\"},{\"category\":\"fruit\",\"name\":\"banana\"}],\"vegetable\":[{\"category\":\"vegetable\",\"name\":\"carrot\"},{\"category\":\"vegetable\",\"name\":\"potato\"}],\"grain\":[{\"category\":\"grain\",\"name\":\"rice\"}]}",
-    "explanation": "The cleanest approach uses `Array.prototype.reduce` to build a `Record<string, T[]>` accumulator: for each item, compute `const groupKey = String(item[key])`, then do `acc[groupKey] = acc[groupKey] ?? []; acc[groupKey].push(item);` before returning `acc`. Typing the parameter as `keyof T` (rather than `string`) gives you compile-time safety — you can't accidentally group by a property that doesn't exist on `T`. Since object property insertion order is preserved for string keys in JavaScript, the resulting groups appear in the order their first member was encountered."
+    "explanation": "The cleanest approach uses `Array.prototype.reduce` to build a `Record<string, T[]>` accumulator: for each item, compute `const groupKey = String(item[key])`, then do `acc[groupKey] = acc[groupKey] ?? []; acc[groupKey].push(item);` before returning `acc`. Typing the parameter as `keyof T` (rather than `string`) gives you compile-time safety — you can't accidentally group by a property that doesn't exist on `T`. Since object property insertion order is preserved for string keys in JavaScript, the resulting groups appear in the order their first member was encountered.",
+    "randomize": {
+      "generate": "const categories = ['fruit', 'vegetable', 'grain', 'dairy'];\nconst names = {\n  fruit: ['apple', 'banana', 'cherry', 'mango'],\n  vegetable: ['carrot', 'potato', 'onion', 'pepper'],\n  grain: ['rice', 'wheat', 'oat', 'corn'],\n  dairy: ['milk', 'cheese', 'yogurt', 'butter'],\n};\nconst usedCategories = shuffle(categories).slice(0, randInt(2, 3));\nconst items = [];\nconst count = randInt(5, 8);\nfor (let i = 0; i < count; i++) {\n  const category = randFrom(usedCategories);\n  const name = randFrom(names[category]);\n  items.push({ category, name });\n}\nreturn { items };\n",
+      "solve": "return items.reduce((acc, item) => {\n  const key = String(item.category);\n  acc[key] = acc[key] ?? [];\n  acc[key].push(item);\n  return acc;\n}, {});\n",
+      "starterCode": "function groupBy<T>(items: T[], key: keyof T): Record<string, T[]> {\n  // TODO: implement grouping logic\n}\n\nconst items = {{items}};\n\nreturn groupBy(items, 'category');\n"
+    }
   },
   {
     "id": "ts-017",
