@@ -51,13 +51,34 @@ so nothing broken reaches the remote. Both are wired via the `prepare` script, s
   typed as `Challenge[]` (see [src/types/index.ts](src/types/index.ts)). Loaded
   statically and imported directly into `Practice.tsx` as `challengesData`.
 - **Code execution**: user code is transpiled from TS to JS with `sucrase`
-  ([src/lib/transpile.ts](src/lib/transpile.ts)), then executed via
-  `new Function(code)()` in `Practice.tsx`'s `evaluateCode`. The code the user writes
+  ([src/lib/transpile.ts](src/lib/transpile.ts)), then executed via `new Function(code)()`
+  in [src/lib/run-code.ts](src/lib/run-code.ts)'s `evaluateCode`. The code the user writes
   is the **entire body of that function** — there's no test harness or hidden
   invocation layer. Whatever the code `return`s is the result, stringified by
   `stringifyResult` (strings pass through as-is; objects/arrays go through
   `JSON.stringify`; everything else via `String()`) and compared against the
-  challenge's `expectedOutput` string.
+  instance's `expectedOutput` string. `challenge-instance.ts` reuses both functions
+  to run a randomized challenge's `solve` script the same way, so the grading logic
+  is identical whether `expectedOutput` came from static JSON or was computed live.
+- **Randomized challenges**: opt-in per challenge via an optional `randomize` block
+  ([src/lib/challenge-instance.ts](src/lib/challenge-instance.ts)'s `instantiateChallenge`).
+  A challenge without `randomize` passes through unchanged (the identity path — this
+  is what keeps 20 of the 25 challenges working exactly as before). One with it gets,
+  on every load: run `randomize.generate` (produces named values, e.g. `{ nums: [...] }`)
+  → run `randomize.solve` against those values (the correct answer) →
+  `{{name}}`/`{{__answer}}` tokens substituted into whichever of `randomize.starterCode`/
+  `description`/`objective`/`hints` were provided (each optional, falling back to the
+  Challenge's own field — most fields don't need an override since most don't name
+  concrete values). **The un-substituted top-level Challenge fields are never templates
+  — they stay a fully valid, concrete worked example on their own**, so if `generate`/
+  `solve` ever throws, the catch in `instantiateChallenge` falls back to real content,
+  never raw `{{...}}` text. `generate`/`solve` are plain JS bodies (transpiled through
+  the same sucrase path) run via `new Function`, with `randInt`/`randFrom`/`shuffle`
+  helpers injected into scope. Because the rolled instance — not just the challenge id —
+  determines what's being graded, `ActiveChallenge.instance` persists it
+  ([src/lib/storage.ts](src/lib/storage.ts)) so resuming or refreshing mid-attempt
+  doesn't silently reroll the values you're solving against; `ActivityEntry.expectedOutput`
+  likewise records what a given attempt was actually graded against.
 - **Persistence**: all progress (stats, activity log, in-progress challenge) lives in
   `localStorage` under key `ts-sandbox-state`, managed by
   [src/lib/storage.ts](src/lib/storage.ts), with **no cap** on the activity log — every
@@ -110,7 +131,9 @@ so nothing broken reaches the remote. Both are wired via the `prepare` script, s
 ## Data model & authoring conventions
 
 `Challenge` (in `src/types/index.ts`): `id`, `title`, `description`, optional
-`objective`, `hints[]`, `starterCode`, `expectedOutput`, `explanation`.
+`objective`, `hints[]`, `starterCode`, `expectedOutput`, `explanation`, and an
+optional `randomize` block (see "Randomized challenges" above and "Adding
+randomization to a challenge" below).
 
 **`starterCode` must be an unsolved stub, never the answer.** Because the execution
 model runs `starterCode` exactly as the user's code (see above), any solution logic
@@ -163,6 +186,33 @@ unless you want the *string* itself to be the visible return value).
 4. Confirm the *unmodified* `starterCode` does **not** already satisfy
    `expectedOutput` (i.e. it doesn't leak the answer).
 
+### Adding randomization to a challenge
+
+Optional, and independent of the steps above — the top-level fields from
+"Adding a new challenge" must stand on their own as a valid worked example
+regardless of whether `randomize` is added, since they're also the fallback if
+`generate`/`solve` ever throws.
+
+1. Write `randomize.generate`: a JS body returning an object of named values,
+   e.g. `return { nums: Array.from({ length: randInt(4, 7) }, () => randInt(1, 20)) }`.
+   `randInt(min, max)`, `randFrom(array)`, and `shuffle(array)` are in scope.
+2. Write `randomize.solve`: a JS body with those names in scope as bindings,
+   returning the correct answer for them (not a full worked function — just
+   the computation). This becomes the roll's `expectedOutput` via `stringifyResult`,
+   same as any other result.
+3. Add `randomize.starterCode` (almost always needed) and `randomize.objective`/
+   `hints`/`description` (only for fields that actually name concrete values) as
+   templates using `{{name}}` for a generated value and `{{__answer}}` for the
+   computed answer, e.g. `"const nums = {{nums}};\n// TODO: ...\n"`. Omit a
+   field entirely to fall back to the Challenge's own (unmodified) field.
+4. Verify by instantiating repeatedly (see
+   [src/lib/challenge-instance.test.ts](src/lib/challenge-instance.test.ts) for the
+   pattern) — confirm varying `expectedOutput` across rolls, no leftover `{{` in
+   any rendered field, and that each roll's *unmodified* `starterCode` still
+   doesn't satisfy its `expectedOutput`. The last check matters per-roll, not just
+   once: a generator whose value range happens to make the stub coincidentally
+   correct would only show up by testing many rolls.
+
 ## Linting & testing
 
 - ESLint uses a flat config ([eslint.config.js](eslint.config.js)): `typescript-eslint`
@@ -176,19 +226,33 @@ unless you want the *string* itself to be the visible return value).
   `test` block there, `environment: "jsdom"`) with no extra ESM/TS transform config,
   unlike Jest in a Vite/ESM project. `globals: true` means `describe`/`it`/`expect`
   don't need explicit imports, though existing tests import them anyway for clarity.
-- Current coverage: [src/lib/storage.test.ts](src/lib/storage.test.ts) covers the
-  localStorage-backed stats/activity-log/active-challenge logic in
-  [src/lib/storage.ts](src/lib/storage.ts), including the challenge-grouping helpers
-  (`getChallengeSummaries`, `getChallengeHistory`, `getFinishedChallengeCount`).
-  Nothing else has tests yet — see gaps below for good next targets.
+- Current coverage:
+  - [src/lib/storage.test.ts](src/lib/storage.test.ts) — the localStorage-backed
+    stats/activity-log/active-challenge logic in [src/lib/storage.ts](src/lib/storage.ts),
+    including the challenge-grouping helpers (`getChallengeSummaries`,
+    `getChallengeHistory`, `getFinishedChallengeCount`).
+  - [src/lib/run-code.test.ts](src/lib/run-code.test.ts) — `evaluateCode`/`stringifyResult`
+    (TS transpilation, thrown errors captured not thrown, the JSON.stringify-with-
+    String()-fallback behavior).
+  - [src/lib/challenge-instance.test.ts](src/lib/challenge-instance.test.ts) —
+    `instantiateChallenge`'s static passthrough, substitution, and error-fallback
+    behavior against fixture challenges, **plus a data-integrity sweep over the real
+    `drill-challenges.json`**: unique ids across all 25 challenges, no challenge's
+    default instance leaks its answer via an unsolved `starterCode`, and (for each
+    randomized challenge specifically) 20 rolls each with no leftover `{{` tokens,
+    non-empty `expectedOutput`, and no per-roll leak.
 
 ## Known gaps
 
-- Only `storage.ts` has test coverage. Good next candidates: a data-integrity test
-  over `drill-challenges.json` (unique ids, and — given the answer-leak bug this
-  repo already had once — asserting no `starterCode` already satisfies its
-  `expectedOutput`), a `transpile.ts` unit test, and a React Testing Library
-  integration test over the `Practice` run/evaluate flow.
+- Only 5 of 25 challenges have a `randomize` block (ts-002, ts-005, ts-006, ts-007,
+  ts-016) — a deliberate pilot spanning both `starterCode` authoring shapes and
+  scalar/array/string/array-of-objects fixture kinds, not full coverage. Converting
+  the remaining 20 is straightforward following "Adding randomization to a challenge"
+  above, just not done yet.
+- `Practice.tsx` and `Dashboard.tsx` have no test coverage — a `transpile.ts` unit
+  test and a React Testing Library integration test over the `Practice` run/evaluate
+  flow (including a randomized challenge's reroll-on-load / no-reroll-on-resume
+  behavior) would be good next targets.
 - No bracket matching or autocomplete in the editor (CodeMirror's `javascript()`
   extension only enables highlighting here — `closeBrackets`/autocompletion would need
   their own extensions added to `CodeEditor.tsx`).

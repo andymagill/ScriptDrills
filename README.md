@@ -122,6 +122,17 @@ See `CLAUDE.md` for more detail on the two supported `starterCode` shapes
 (inline-fixture vs. function-under-test) and how the execution/comparison
 model works under the hood.
 
+#### Making a challenge replayable
+
+A challenge can optionally roll fresh fixture values on every load instead of
+always using the same fixed example — add a `randomize` block with a `generate`
+script (produces the values) and a `solve` script (computes the answer from
+them), then reference the generated values as `{{name}}` and the computed
+answer as `{{__answer}}` in `starterCode`/`objective`/`hints`/`description`.
+Five challenges (`ts-002`, `ts-005`, `ts-006`, `ts-007`, `ts-016`) already do
+this — they're a good template to copy from. See `CLAUDE.md`'s "Adding
+randomization to a challenge" for the full authoring/verification steps.
+
 ## Deployment
 
 The app is a static build with no backend, deployed to
