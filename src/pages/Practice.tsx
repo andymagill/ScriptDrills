@@ -182,7 +182,7 @@ export function Practice({ onNavigate }: PracticeProps) {
     }
   }
 
-  function handleSkip() {
+  function handleSkip(difficulty: DifficultyFilter) {
     recordResult({
       challengeId: instance.challengeId,
       challengeTitle: instance.title,
@@ -190,7 +190,7 @@ export function Practice({ onNavigate }: PracticeProps) {
       submittedCode: code,
       expectedOutput: instance.expectedOutput,
     })
-    loadChallenge(nextInstance("any", instance.challengeId))
+    loadChallenge(nextInstance(difficulty, instance.challengeId))
   }
 
   function handleNext(difficulty: DifficultyFilter) {
@@ -343,16 +343,20 @@ export function Practice({ onNavigate }: PracticeProps) {
               <Play className="size-3.5" />
               Run Code
             </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-2"
-              onClick={handleSkip}
-              disabled={solved}
-            >
-              <SkipForward className="size-3.5" />
-              Skip Challenge
-            </Button>
+            {/* Hidden (not disabled) once solved - skipping a challenge
+                you've already solved correctly is meaningless, and the
+                forward path at that point is "Next Challenge" below, not
+                Skip. */}
+            {!solved && (
+              <DifficultyPickerButton
+                size="sm"
+                variant="outline"
+                onPick={handleSkip}
+              >
+                <SkipForward className="size-3.5" />
+                Skip Challenge
+              </DifficultyPickerButton>
+            )}
             {solved && (
               <Badge className="ml-auto gap-1.5 bg-emerald-500/15 text-emerald-600 border-emerald-500/30 dark:text-emerald-400">
                 <CheckCircle2 className="size-3" />

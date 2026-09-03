@@ -125,16 +125,19 @@ so nothing broken reaches the remote. Both are wired via the `prepare` script, s
   behavior, including the load-bearing "relaxes oldest-first" test.
 - **Difficulty picker UI**: [src/components/DifficultyPickerButton.tsx](src/components/DifficultyPickerButton.tsx)
   is a split button (`ButtonGroup` + a `Button` + a `DropdownMenu` chevron trigger) used
-  on Dashboard's "Start Random Challenge"/"Start Now" and Practice's "Next Challenge"
-  (shown after solving). It is deliberately **stateless and one-shot** — the primary
-  button always means Random, and picking a tier from the dropdown loads exactly one
-  challenge of that tier before reverting to Random; there is no sticky label and no
-  remembered preference anywhere. `Practice.tsx`'s Skip button is a plain `Button`, not
-  this picker — Skip is a "get me out of here" action and stays Random on purpose,
-  unlike Next/Start. Dashboard's "Continue Most Recent Challenge" is also deliberately a
-  plain `Button`, not this picker, in every branch where a challenge is already active
-  — see the "CTA Buttons" comment in `Dashboard.tsx`: abandoning an in-progress
-  challenge from the Dashboard isn't a supported flow.
+  on every "load a challenge" control that's reachable while no challenge is active/
+  in-progress: Dashboard's "Start Random Challenge"/"Start Now", and Practice's "Skip
+  Challenge" (only rendered pre-solve) and "Next Challenge" (only rendered post-solve).
+  It is deliberately **stateless and one-shot** — the primary button always means
+  Random, and picking a tier from the dropdown loads exactly one challenge of that tier
+  before reverting to Random; there is no sticky label, no remembered preference, and
+  **no `disabled` prop** — every call site is conditionally *rendered* instead of
+  disabled (Skip disappears once `solved`, mirroring Next Challenge only appearing once
+  `solved`), so don't add one back without an actual caller that needs it. Dashboard's
+  "Continue Most Recent Challenge" is deliberately a plain `Button`, **not** this
+  picker, in every branch where a challenge is already active — see the "CTA Buttons"
+  comment in `Dashboard.tsx`: abandoning an in-progress challenge from the Dashboard
+  isn't a supported flow, only Skip (on the Practice page) is.
   [src/components/DifficultyBadge.tsx](src/components/DifficultyBadge.tsx) renders the
   tier (sky/amber/rose for easy/medium/hard — deliberately not emerald, which already
   means "Correct" in the activity log) and appears in the Practice header and the
