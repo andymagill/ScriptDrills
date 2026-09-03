@@ -6,6 +6,7 @@ import {
   getChallengeHistory,
   getChallengeSummaries,
   getFinishedChallengeCount,
+  getRecentChallengeIds,
   getStats,
   recordResult,
   setActiveChallenge,
@@ -165,6 +166,43 @@ describe("getChallengeHistory", () => {
 
   it("returns an empty array for a challenge with no attempts", () => {
     expect(getChallengeHistory("ts-999")).toEqual([])
+  })
+
+  it("normalizes string/number id mismatches", () => {
+    recordResult({
+      challengeId: 7,
+      challengeTitle: "Numeric Id",
+      status: "correct",
+      submittedCode: "",
+    })
+    expect(getChallengeHistory("7")).toHaveLength(1)
+  })
+})
+
+describe("getRecentChallengeIds", () => {
+  it("returns an empty array for an empty log", () => {
+    expect(getRecentChallengeIds()).toEqual([])
+  })
+
+  it("returns distinct ids, newest first", () => {
+    recordResult({ challengeId: "a", challengeTitle: "A", status: "correct", submittedCode: "" })
+    recordResult({ challengeId: "b", challengeTitle: "B", status: "incorrect", submittedCode: "" })
+    recordResult({ challengeId: "a", challengeTitle: "A", status: "skipped", submittedCode: "" })
+    recordResult({ challengeId: "c", challengeTitle: "C", status: "correct", submittedCode: "" })
+
+    expect(getRecentChallengeIds()).toEqual(["c", "a", "b"])
+  })
+
+  it("counts incorrect and skipped attempts, not just correct", () => {
+    recordResult({ challengeId: "a", challengeTitle: "A", status: "incorrect", submittedCode: "" })
+    expect(getRecentChallengeIds()).toEqual(["a"])
+  })
+
+  it("respects the limit on a log longer than it", () => {
+    for (const id of ["a", "b", "c", "d", "e", "f"]) {
+      recordResult({ challengeId: id, challengeTitle: id, status: "correct", submittedCode: "" })
+    }
+    expect(getRecentChallengeIds(3)).toEqual(["f", "e", "d"])
   })
 })
 

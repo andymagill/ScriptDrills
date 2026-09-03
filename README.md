@@ -25,7 +25,7 @@ Then open the printed local URL (defaults to `http://localhost:5173`).
 ```bash
 npm run build        # type-check and build for production
 npm run preview      # preview a production build locally
-npm run typecheck    # tsc --noEmit
+npm run typecheck    # tsc -b --noEmit
 npm run lint          # eslint .
 npm run lint:fix      # eslint . --fix
 npm test              # run the test suite once
@@ -40,7 +40,11 @@ suite so nothing broken reaches the remote.
 
 - **Pick a challenge.** The Dashboard shows your stats and challenge history;
   "Start Random Challenge" picks one from
-  [`src/data/drill-challenges.json`](src/data/drill-challenges.json).
+  [`src/data/drill-challenges.json`](src/data/drill-challenges.json). Every
+  challenge has a difficulty (easy/medium/hard) — click the dropdown next to
+  "Start Random Challenge" (or "Skip"/"Next Challenge" on the challenge page
+  itself) to pick a tier instead of a random one. The app also avoids
+  re-serving any of your last 5 distinct challenges, regardless of difficulty.
 - **Write your solution.** The editor ([CodeMirror 6](https://codemirror.net/))
   gives you TypeScript syntax highlighting. There's no hidden test harness —
   the code you write *is* the entire function body that gets executed. It's
@@ -83,8 +87,9 @@ issue or a pull request.
 
 Challenges live in [`src/data/drill-challenges.json`](src/data/drill-challenges.json),
 typed as `Challenge[]` (see [`src/types/index.ts`](src/types/index.ts)):
-`id`, `title`, `description`, an optional `objective`, `hints[]`,
-`starterCode`, `expectedOutput`, and `explanation`.
+`id`, `title`, `difficulty` (`"easy" | "medium" | "hard"`), `description`, an
+optional `objective`, `hints[]`, `starterCode`, `expectedOutput`, and
+`explanation`.
 
 The most important rule: **`starterCode` must be an unsolved stub, not the
 answer.** Whatever `starterCode` contains is exactly what loads into the
@@ -107,7 +112,10 @@ return nums.reduce((acc, curr) => acc + curr, 0);
 
 To add one:
 
-1. Pick the next `ts-0NN` id (sequential, zero-padded to 3 digits).
+1. Pick the next `ts-0NN` id (sequential, zero-padded to 3 digits) and a
+   `difficulty` — CLAUDE.md has the rubric, and the bank is kept at 10 per
+   tier so the difficulty picker's repeat-avoidance always has enough to
+   choose from.
 2. Write `starterCode` as a self-contained script: fixture data plus a
    `// TODO` stub, ending in whatever `return` a correct solution would
    produce.

@@ -65,6 +65,7 @@ export function instantiateChallenge(challenge: Challenge): ChallengeInstance {
   const base: ChallengeInstance = {
     challengeId: challenge.id,
     title: challenge.title,
+    difficulty: challenge.difficulty,
     description: challenge.description,
     objective: challenge.objective,
     hints: challenge.hints,

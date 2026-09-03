@@ -10,7 +10,7 @@ persistence) runs client-side in the browser.
 ```bash
 npm install
 npm run dev         # start Vite dev server
-npm run typecheck   # tsc --noEmit
+npm run typecheck   # tsc -b --noEmit
 npm run build        # tsc -b && vite build
 npm run preview      # preview a production build
 npm run lint         # eslint .
@@ -47,9 +47,26 @@ so nothing broken reaches the remote. Both are wired via the `prepare` script, s
 - **Pages**: [src/pages/Dashboard.tsx](src/pages/Dashboard.tsx) (stats + activity log)
   and [src/pages/Practice.tsx](src/pages/Practice.tsx) (the challenge workspace —
   editor, run/skip controls, console output, hints, explanation).
-- **Challenge data**: [src/data/drill-challenges.json](src/data/drill-challenges.json),
-  typed as `Challenge[]` (see [src/types/index.ts](src/types/index.ts)). Loaded
-  statically and imported directly into `Practice.tsx` as `challengesData`.
+- **Challenge data**: [src/data/drill-challenges.json](src/data/drill-challenges.json)
+  (see `Challenge` in [src/types/index.ts](src/types/index.ts)), loaded through
+  [src/data/challenges.ts](src/data/challenges.ts) — the **only** module that imports
+  the JSON directly. `Practice.tsx`, `Dashboard.tsx`, and the tests all import its
+  `challenges` (typed array) and `findChallenge(id)` instead of casting the JSON
+  themselves. That module exists because `raw as Challenge[]` would compile but check
+  nothing: TS's `as` uses the *comparable* relation, so the JSON's inferred
+  `difficulty: string` silently launders into the `"easy" | "medium" | "hard"` union
+  even for a typo'd or missing value (verified — this isn't a hypothetical). Instead,
+  `challenges.ts` `.map()`s the raw array through a real `isDifficulty` predicate, so
+  every other field gets checked by genuine assignability and a bad entry throws at
+  import time instead of silently reaching the UI.
+- **Challenge difficulty**: every `Challenge` has a required `difficulty: "easy" |
+  "medium" | "hard"` ([src/types/index.ts](src/types/index.ts)). Roughly: **easy** =
+  one-liner over an inline fixture; **medium** = a short loop/chain or a typed
+  function with a one-step body; **hard** = a multi-branch algorithm (recursion,
+  eviction, two-directional walks). The bank is kept at **10 per tier** on purpose —
+  see "every difficulty tier has more challenges than the repeat-avoidance window" in
+  `challenge-instance.test.ts`, which enforces that a tier never shrinks to the point
+  where the recency-exclusion ladder (below) has nothing left to serve.
 - **Code execution**: user code is transpiled from TS to JS with `sucrase`
   ([src/lib/transpile.ts](src/lib/transpile.ts)), then executed via `new Function(code)()`
   in [src/lib/run-code.ts](src/lib/run-code.ts)'s `evaluateCode`. The code the user writes
@@ -63,7 +80,7 @@ so nothing broken reaches the remote. Both are wired via the `prepare` script, s
 - **Randomized challenges**: opt-in per challenge via an optional `randomize` block
   ([src/lib/challenge-instance.ts](src/lib/challenge-instance.ts)'s `instantiateChallenge`).
   A challenge without `randomize` passes through unchanged (the identity path — this
-  is what keeps 20 of the 25 challenges working exactly as before). One with it gets,
+  is what keeps 25 of the 30 challenges working exactly as before). One with it gets,
   on every load: run `randomize.generate` (produces named values, e.g. `{ nums: [...] }`)
   → run `randomize.solve` against those values (the correct answer) →
   `{{name}}`/`{{__answer}}` tokens substituted into whichever of `randomize.starterCode`/
@@ -85,7 +102,46 @@ so nothing broken reaches the remote. Both are wired via the `prepare` script, s
   attempt ever made is kept, so per-challenge history and counts stay exact. There is no
   server/database. A separate `sessionStorage` flag (`ts-sandbox-force-new`) tells
   `Practice.tsx` to load a fresh random challenge instead of resuming the last
-  in-progress one.
+  in-progress one; `ts-sandbox-next-difficulty` rides alongside it for a one-shot
+  difficulty pick made on the Dashboard (see below) — both are read **and removed** in
+  `Practice`'s `useState` initializer in the same block, which is what keeps a
+  difficulty pick from persisting past that one load.
+- **Challenge selection & repeat avoidance**:
+  [src/lib/challenge-select.ts](src/lib/challenge-select.ts)'s `selectChallenge(challenges,
+  { difficulty?, excludeIds? })` is the one place a "next challenge" gets picked — both
+  pages call it (Practice directly; Dashboard indirectly via the sessionStorage
+  handoff above). The **difficulty filter is never relaxed**; if the requested tier is
+  literally empty (a data bug, not a real state — see the ≥10-per-tier note above) it
+  falls back to the full set rather than throwing. The **recency exclusion is** relaxed,
+  progressively, when it would otherwise leave no candidates: `excludeIds` is
+  `[currentChallengeId, ...getRecentChallengeIds()]` (newest-first;
+  `getRecentChallengeIds()` in `storage.ts` walks the activity log — any outcome,
+  correct/incorrect/skipped — and returns up to 5 **distinct** ids, so failing one
+  challenge repeatedly only ever burns one slot), and when the pool can't satisfy the
+  whole list, the **oldest** ids are dropped first so the current/most-recent
+  challenges stay excluded longest. This ladder isn't a rare edge case — with a
+  10-challenge tier and a 6-deep exclusion list (current + 5 recent), it fires on most
+  same-difficulty picks. See `challenge-select.test.ts` for the ladder's exact
+  behavior, including the load-bearing "relaxes oldest-first" test.
+- **Difficulty picker UI**: [src/components/DifficultyPickerButton.tsx](src/components/DifficultyPickerButton.tsx)
+  is a split button (`ButtonGroup` + a `Button` + a `DropdownMenu` chevron trigger) used
+  on every "load a challenge" control that's reachable while no challenge is active/
+  in-progress: Dashboard's "Start Random Challenge"/"Start Now", and Practice's "Skip
+  Challenge" (only rendered pre-solve) and "Next Challenge" (only rendered post-solve).
+  It is deliberately **stateless and one-shot** — the primary button always means
+  Random, and picking a tier from the dropdown loads exactly one challenge of that tier
+  before reverting to Random; there is no sticky label, no remembered preference, and
+  **no `disabled` prop** — every call site is conditionally *rendered* instead of
+  disabled (Skip disappears once `solved`, mirroring Next Challenge only appearing once
+  `solved`), so don't add one back without an actual caller that needs it. Dashboard's
+  "Continue Most Recent Challenge" is deliberately a plain `Button`, **not** this
+  picker, in every branch where a challenge is already active — see the "CTA Buttons"
+  comment in `Dashboard.tsx`: abandoning an in-progress challenge from the Dashboard
+  isn't a supported flow, only Skip (on the Practice page) is.
+  [src/components/DifficultyBadge.tsx](src/components/DifficultyBadge.tsx) renders the
+  tier (sky/amber/rose for easy/medium/hard — deliberately not emerald, which already
+  means "Correct" in the activity log) and appears in the Practice header and the
+  Dashboard activity table.
 - **Dashboard's Activity Log is grouped by challenge, not by attempt**: `getChallengeSummaries()`
   in `storage.ts` collapses the raw per-attempt log into one row per distinct
   `challengeId` (title, `bestStatus`, `attemptCount`, `lastAttemptAt`), sorted by most
@@ -130,10 +186,10 @@ so nothing broken reaches the remote. Both are wired via the `prepare` script, s
 
 ## Data model & authoring conventions
 
-`Challenge` (in `src/types/index.ts`): `id`, `title`, `description`, optional
-`objective`, `hints[]`, `starterCode`, `expectedOutput`, `explanation`, and an
-optional `randomize` block (see "Randomized challenges" above and "Adding
-randomization to a challenge" below).
+`Challenge` (in `src/types/index.ts`): `id`, `title`, `difficulty` (`"easy" |
+"medium" | "hard"`, required), `description`, optional `objective`, `hints[]`,
+`starterCode`, `expectedOutput`, `explanation`, and an optional `randomize` block
+(see "Randomized challenges" above and "Adding randomization to a challenge" below).
 
 **`starterCode` must be an unsolved stub, never the answer.** Because the execution
 model runs `starterCode` exactly as the user's code (see above), any solution logic
@@ -186,6 +242,34 @@ unless you want the *string* itself to be the visible return value).
 4. Confirm the *unmodified* `starterCode` does **not** already satisfy
    `expectedOutput` (i.e. it doesn't leak the answer).
 
+**Runtime constraints on the solution/starterCode you write** (all verified against
+the actual `sucrase` → `new Function` → `stringifyResult` pipeline, not assumed):
+
+- **No `async`/Promises, ever.** There's no await point; a returned Promise
+  stringifies to `"{}"`. Top-level `await` is a `SyntaxError` (`new Function` builds a
+  synchronous, non-async function).
+- **A returned `Map` or `Set` stringifies to `"{}"`.** Convert first:
+  `Object.fromEntries(map)` or `[...set]`.
+- **`undefined` object properties are silently dropped** by `JSON.stringify`
+  (`{a:1,b:undefined}` → `{"a":1}`). Coerce to `null` (`x ?? null`) if a key needs to
+  survive.
+- **Don't return a class instance.** `private`/`#private` fields are erased or
+  inaccessible at the JSON boundary in inconsistent ways — return an explicit plain
+  object/array summary instead.
+- **Integer-like object keys get reordered** by `JSON.stringify`. Prefer string keys
+  unless you've actually checked the reordering is what you want.
+- **Regexes in `starterCode`/solution need JSON double-escaping** (`/\[(\d+)\]/g` →
+  the JSON string `"/\\[(\\d+)\\]/g"`). Getting this wrong fails *silently* — the
+  regex just matches nothing — and the answer-leak sweep won't catch it, since an
+  unsolved stub still correctly returns `undefined`.
+- Verified to work fine: classes, `??=`, `?.`/`??`, generators, `Object.groupBy`,
+  `.at(-1)`, `structuredClone`, thrown errors (captured, not thrown).
+- **Nothing type-checks.** `CodeEditor` is highlighting-only (see "UI components"
+  above) and sucrase only erases TS syntax — it never runs the type checker. A
+  challenge whose difficulty lives purely in the type system (e.g. a `never`
+  exhaustiveness check) grades as easy wearing a hard costume, because neither the
+  editor nor the grader can observe it. Difficulty must be *runtime* difficulty.
+
 ### Adding randomization to a challenge
 
 Optional, and independent of the steps above — the top-level fields from
@@ -230,25 +314,33 @@ regardless of whether `randomize` is added, since they're also the fallback if
   - [src/lib/storage.test.ts](src/lib/storage.test.ts) — the localStorage-backed
     stats/activity-log/active-challenge logic in [src/lib/storage.ts](src/lib/storage.ts),
     including the challenge-grouping helpers (`getChallengeSummaries`,
-    `getChallengeHistory`, `getFinishedChallengeCount`).
+    `getChallengeHistory`, `getFinishedChallengeCount`) and `getRecentChallengeIds`
+    (newest-first, deduped, any outcome, respects `limit`).
   - [src/lib/run-code.test.ts](src/lib/run-code.test.ts) — `evaluateCode`/`stringifyResult`
     (TS transpilation, thrown errors captured not thrown, the JSON.stringify-with-
     String()-fallback behavior).
   - [src/lib/challenge-instance.test.ts](src/lib/challenge-instance.test.ts) —
     `instantiateChallenge`'s static passthrough, substitution, and error-fallback
     behavior against fixture challenges, **plus a data-integrity sweep over the real
-    `drill-challenges.json`**: unique ids across all 25 challenges, no challenge's
-    default instance leaks its answer via an unsolved `starterCode`, and (for each
-    randomized challenge specifically) 20 rolls each with no leftover `{{` tokens,
-    non-empty `expectedOutput`, and no per-roll leak.
+    `drill-challenges.json`**: unique ids across all 30 challenges, every challenge has
+    a valid `difficulty` and every tier exceeds the repeat-avoidance window, no
+    challenge's default instance leaks its answer via an unsolved `starterCode`, and
+    (for each randomized challenge specifically) 20 rolls each with no leftover `{{`
+    tokens, non-empty `expectedOutput`, and no per-roll leak.
+  - [src/lib/challenge-select.test.ts](src/lib/challenge-select.test.ts) —
+    `selectChallenge`'s tier filter, the "difficulty is never relaxed" invariant, and
+    the recency-exclusion ladder (including the load-bearing "relaxes oldest-first"
+    test, id normalization, and the empty-tier/empty-pool fallbacks) against a
+    hand-built fixture pool — deliberately not the real JSON, so the ladder's tests
+    don't shift every time a challenge is added.
 
 ## Known gaps
 
-- Only 5 of 25 challenges have a `randomize` block (ts-002, ts-005, ts-006, ts-007,
+- Only 5 of 30 challenges have a `randomize` block (ts-002, ts-005, ts-006, ts-007,
   ts-016) — a deliberate pilot spanning both `starterCode` authoring shapes and
   scalar/array/string/array-of-objects fixture kinds, not full coverage. Converting
-  the remaining 20 is straightforward following "Adding randomization to a challenge"
-  above, just not done yet.
+  the remaining 25 (including all 5 added for the difficulty tiers) is straightforward
+  following "Adding randomization to a challenge" above, just not done yet.
 - `Practice.tsx` and `Dashboard.tsx` have no test coverage — a `transpile.ts` unit
   test and a React Testing Library integration test over the `Practice` run/evaluate
   flow (including a randomized challenge's reroll-on-load / no-reroll-on-resume

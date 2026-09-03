@@ -21,11 +21,19 @@ import {
 } from "@/components/ui/accordion"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ModeToggle } from "@/components/mode-toggle"
-import { recordResult, getActiveChallenge, setActiveChallenge } from "@/lib/storage"
+import { DifficultyPickerButton } from "@/components/DifficultyPickerButton"
+import { DifficultyBadge } from "@/components/DifficultyBadge"
+import {
+  recordResult,
+  getActiveChallenge,
+  setActiveChallenge,
+  getRecentChallengeIds,
+} from "@/lib/storage"
 import { evaluateCode, stringifyResult } from "@/lib/run-code"
 import { instantiateChallenge } from "@/lib/challenge-instance"
-import challengesData from "@/data/drill-challenges.json"
-import type { Challenge, ChallengeInstance } from "@/types"
+import { selectChallenge } from "@/lib/challenge-select"
+import { challenges } from "@/data/challenges"
+import type { ChallengeInstance, DifficultyFilter } from "@/types"
 
 // CodeMirror pulls in a heavy language/highlighting toolchain (~500kB) that only
 // this page needs, so it's split into its own chunk instead of shipping on every
@@ -34,8 +42,6 @@ import type { Challenge, ChallengeInstance } from "@/types"
 const CodeEditor = React.lazy(() =>
   import("@/components/CodeEditor").then((m) => ({ default: m.CodeEditor }))
 )
-
-const challenges = challengesData as Challenge[]
 
 interface ConsoleLine {
   type: "info" | "success" | "error"
@@ -46,17 +52,30 @@ interface PracticeProps {
   onNavigate: (route: string) => void
 }
 
-function pickRandomChallenge(excludeId?: string | number): Challenge {
-  const pool = excludeId
-    ? challenges.filter((c) => c.id !== excludeId)
-    : challenges
-  return pool[Math.floor(Math.random() * pool.length)]
+// Difficulty is never relaxed by selectChallenge, but recency exclusion is -
+// the current challenge plus the last few distinct attempts are avoided when
+// possible, without ever serving a difficulty outside what was asked for.
+function nextInstance(
+  difficulty: DifficultyFilter,
+  currentId?: string | number
+): ChallengeInstance {
+  return instantiateChallenge(
+    selectChallenge(challenges, {
+      difficulty: difficulty === "any" ? undefined : difficulty,
+      excludeIds: [
+        ...(currentId !== undefined ? [currentId] : []),
+        ...getRecentChallengeIds(),
+      ],
+    })
+  )
 }
 
 const READY_LINE: ConsoleLine = {
   type: "info",
   text: "Console ready. Click \"Run Code\" to evaluate your solution.",
 }
+
+const NEXT_DIFFICULTY_KEY = "ts-sandbox-next-difficulty"
 
 export function Practice({ onNavigate }: PracticeProps) {
   // Randomized challenges roll fresh values on each instantiation, so the
@@ -67,6 +86,11 @@ export function Practice({ onNavigate }: PracticeProps) {
     const forceNew = sessionStorage.getItem("ts-sandbox-force-new") === "1"
     if (forceNew) sessionStorage.removeItem("ts-sandbox-force-new")
 
+    const nextDifficulty =
+      (sessionStorage.getItem(NEXT_DIFFICULTY_KEY) as DifficultyFilter | null) ??
+      "any"
+    if (nextDifficulty !== "any") sessionStorage.removeItem(NEXT_DIFFICULTY_KEY)
+
     if (!forceNew) {
       const active = getActiveChallenge()
       if (active?.instance) return active.instance
@@ -76,7 +100,7 @@ export function Practice({ onNavigate }: PracticeProps) {
       }
     }
 
-    return instantiateChallenge(pickRandomChallenge())
+    return nextInstance(nextDifficulty)
   })
 
   const [code, setCode] = React.useState<string>(() => {
@@ -158,7 +182,7 @@ export function Practice({ onNavigate }: PracticeProps) {
     }
   }
 
-  function handleSkip() {
+  function handleSkip(difficulty: DifficultyFilter) {
     recordResult({
       challengeId: instance.challengeId,
       challengeTitle: instance.title,
@@ -166,11 +190,11 @@ export function Practice({ onNavigate }: PracticeProps) {
       submittedCode: code,
       expectedOutput: instance.expectedOutput,
     })
-    loadChallenge(instantiateChallenge(pickRandomChallenge(instance.challengeId)))
+    loadChallenge(nextInstance(difficulty, instance.challengeId))
   }
 
-  function handleNext() {
-    loadChallenge(instantiateChallenge(pickRandomChallenge(instance.challengeId)))
+  function handleNext(difficulty: DifficultyFilter) {
+    loadChallenge(nextInstance(difficulty, instance.challengeId))
   }
 
   function handleResetCode() {
@@ -201,6 +225,7 @@ export function Practice({ onNavigate }: PracticeProps) {
           </div>
           <div className="flex items-center gap-2">
             <ModeToggle />
+            <DifficultyBadge difficulty={instance.difficulty} />
             <Badge variant="outline" className="font-mono text-xs">
               {instance.challengeId}
             </Badge>
@@ -266,14 +291,14 @@ export function Practice({ onNavigate }: PracticeProps) {
             )}
 
             {solved && (
-              <Button
+              <DifficultyPickerButton
                 size="lg"
-                className="w-full gap-2"
-                onClick={handleNext}
+                className="w-full"
+                onPick={handleNext}
               >
                 Next Challenge
                 <ArrowRight className="size-4" />
-              </Button>
+              </DifficultyPickerButton>
             )}
           </div>
         </div>
@@ -318,16 +343,20 @@ export function Practice({ onNavigate }: PracticeProps) {
               <Play className="size-3.5" />
               Run Code
             </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-2"
-              onClick={handleSkip}
-              disabled={solved}
-            >
-              <SkipForward className="size-3.5" />
-              Skip Challenge
-            </Button>
+            {/* Hidden (not disabled) once solved - skipping a challenge
+                you've already solved correctly is meaningless, and the
+                forward path at that point is "Next Challenge" below, not
+                Skip. */}
+            {!solved && (
+              <DifficultyPickerButton
+                size="sm"
+                variant="outline"
+                onPick={handleSkip}
+              >
+                <SkipForward className="size-3.5" />
+                Skip Challenge
+              </DifficultyPickerButton>
+            )}
             {solved && (
               <Badge className="ml-auto gap-1.5 bg-emerald-500/15 text-emerald-600 border-emerald-500/30 dark:text-emerald-400">
                 <CheckCircle2 className="size-3" />
