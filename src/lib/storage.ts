@@ -6,6 +6,7 @@ import type {
   ActivityStatus,
   ChallengeSummary,
 } from "@/types"
+import { RECENT_WINDOW } from "@/lib/challenge-select"
 
 const STORAGE_KEY = "ts-sandbox-state"
 
@@ -87,7 +88,7 @@ export function getChallengeHistory(challengeId: string | number): ActivityEntry
 // (correct/incorrect/skipped all count) - used to avoid repeating recently
 // attempted challenges. The log is uncapped, so this breaks early at `limit`
 // rather than deduping the whole thing on every call.
-export function getRecentChallengeIds(limit = 5): (string | number)[] {
+export function getRecentChallengeIds(limit = RECENT_WINDOW): (string | number)[] {
   const seen = new Set<string>()
   const ids: (string | number)[] = []
   for (const entry of getActivityLog()) {
