@@ -45,6 +45,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { ModeToggle } from "@/components/mode-toggle"
+import { DifficultyPickerButton } from "@/components/DifficultyPickerButton"
+import { DifficultyBadge } from "@/components/DifficultyBadge"
 import {
   getStats,
   getActiveChallenge,
@@ -53,7 +55,8 @@ import {
   getFinishedChallengeCount,
   clearAll,
 } from "@/lib/storage"
-import type { ActivityStatus, ChallengeSummary } from "@/types"
+import { findChallenge } from "@/data/challenges"
+import type { ActivityStatus, ChallengeSummary, DifficultyFilter } from "@/types"
 
 interface DashboardProps {
   onNavigate: (route: string) => void
@@ -115,6 +118,24 @@ export function Dashboard({ onNavigate }: DashboardProps) {
     const id = window.setTimeout(prefetch, 1)
     return () => window.clearTimeout(id)
   }, [])
+
+  // Discards whatever challenge is currently active and loads a new one.
+  // Only ever wire this to a control that's hidden while hasActive is true -
+  // abandoning an in-progress challenge from the Dashboard is not a supported
+  // flow. The only sanctioned way to move past an active challenge is the
+  // Skip button on the Practice page itself.
+  function startChallenge(difficulty: DifficultyFilter) {
+    // Signal Practice to load a fresh challenge instead of resuming the
+    // in-progress one, and pass along the one-shot difficulty pick (if any) -
+    // Practice reads and removes both in the same init step.
+    sessionStorage.setItem("ts-sandbox-force-new", "1")
+    if (difficulty === "any") {
+      sessionStorage.removeItem("ts-sandbox-next-difficulty")
+    } else {
+      sessionStorage.setItem("ts-sandbox-next-difficulty", difficulty)
+    }
+    onNavigate("practice")
+  }
 
   function handleClear() {
     clearAll()
@@ -236,6 +257,11 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         {/* CTA Buttons */}
+        {/* When a challenge is already in progress, show ONLY "Continue" - no
+            difficulty-picker "start a new one" button here. Abandoning an
+            in-progress challenge from the Dashboard is not a supported flow;
+            the only way to move on to a new challenge is the Skip button on
+            the Practice page itself. Do not add a second CTA to this branch. */}
         <div className="flex flex-wrap gap-3">
           {hasActive ? (
             <Button
@@ -247,18 +273,10 @@ export function Dashboard({ onNavigate }: DashboardProps) {
               Continue Most Recent Challenge
             </Button>
           ) : (
-            <Button
-              size="lg"
-              className="gap-2"
-              onClick={() => {
-                // Signal practice page to load a random challenge
-                sessionStorage.setItem("ts-sandbox-force-new", "1")
-                onNavigate("practice")
-              }}
-            >
+            <DifficultyPickerButton size="lg" onPick={startChallenge}>
               <Shuffle className="size-4" />
               Start Random Challenge
-            </Button>
+            </DifficultyPickerButton>
           )}
         </div>
 
@@ -288,15 +306,35 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                     Start a challenge to see your history here.
                   </p>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-2 gap-2"
-                  onClick={() => onNavigate("practice")}
-                >
-                  <Play className="size-3.5" />
-                  Start Now
-                </Button>
+                {/* An empty activity log doesn't imply no active challenge - a
+                    challenge loads (and is persisted as active) before the user
+                    runs or skips it, so this card can render while hasActive is
+                    true. In that case this must behave like the CTA above:
+                    "Continue" only, no difficulty picker that would silently
+                    discard the in-progress challenge. Advancing past an active
+                    challenge is Skip's job, on the Practice page - not this
+                    card's. */}
+                {hasActive ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-2 gap-2"
+                    onClick={() => onNavigate("practice")}
+                  >
+                    <Play className="size-3.5" />
+                    Continue Most Recent Challenge
+                  </Button>
+                ) : (
+                  <DifficultyPickerButton
+                    size="sm"
+                    variant="outline"
+                    className="mt-2"
+                    onPick={startChallenge}
+                  >
+                    <Play className="size-3.5" />
+                    Start Now
+                  </DifficultyPickerButton>
+                )}
               </CardContent>
             </Card>
           ) : (
@@ -306,31 +344,38 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                   <TableRow>
                     <TableHead className="w-[140px]">Best Result</TableHead>
                     <TableHead>Challenge</TableHead>
+                    <TableHead className="hidden sm:table-cell w-[100px]">Difficulty</TableHead>
                     <TableHead className="hidden md:table-cell w-[100px]">Attempts</TableHead>
                     <TableHead className="hidden lg:table-cell w-[160px]">Last Attempt</TableHead>
                     <TableHead className="w-8" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {summaries.map((summary) => (
-                    <TableRow
-                      key={String(summary.challengeId)}
-                      className="cursor-pointer"
-                      onClick={() => setSelected(summary)}
-                    >
-                      <TableCell>{statusBadge(summary.bestStatus)}</TableCell>
-                      <TableCell className="font-medium">{summary.challengeTitle}</TableCell>
-                      <TableCell className="hidden md:table-cell text-muted-foreground">
-                        {summary.attemptCount}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell text-muted-foreground text-xs">
-                        {formatTime(summary.lastAttemptAt)}
-                      </TableCell>
-                      <TableCell>
-                        <ChevronRight className="size-4 text-muted-foreground" />
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {summaries.map((summary) => {
+                    const difficulty = findChallenge(summary.challengeId)?.difficulty
+                    return (
+                      <TableRow
+                        key={String(summary.challengeId)}
+                        className="cursor-pointer"
+                        onClick={() => setSelected(summary)}
+                      >
+                        <TableCell>{statusBadge(summary.bestStatus)}</TableCell>
+                        <TableCell className="font-medium">{summary.challengeTitle}</TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                          {difficulty && <DifficultyBadge difficulty={difficulty} />}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell text-muted-foreground">
+                          {summary.attemptCount}
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell text-muted-foreground text-xs">
+                          {formatTime(summary.lastAttemptAt)}
+                        </TableCell>
+                        <TableCell>
+                          <ChevronRight className="size-4 text-muted-foreground" />
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
                 </TableBody>
               </Table>
             </Card>

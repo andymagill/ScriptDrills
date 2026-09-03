@@ -21,9 +21,15 @@ export interface ChallengeRandomization {
   hints?: string[]
 }
 
+export type Difficulty = "easy" | "medium" | "hard"
+
+/** What the difficulty picker emits; "any" is the Random default. */
+export type DifficultyFilter = Difficulty | "any"
+
 export interface Challenge {
   id: string | number
   title: string
+  difficulty: Difficulty
   description: string
   objective?: string
   hints: string[]
@@ -43,6 +49,7 @@ export interface Challenge {
 export interface ChallengeInstance {
   challengeId: string | number
   title: string
+  difficulty: Difficulty
   description: string
   objective?: string
   hints: string[]

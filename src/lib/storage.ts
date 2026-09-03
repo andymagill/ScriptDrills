@@ -78,7 +78,26 @@ function statusRank(status: ActivityStatus): number {
 }
 
 export function getChallengeHistory(challengeId: string | number): ActivityEntry[] {
-  return getActivityLog().filter((entry) => entry.challengeId === challengeId)
+  return getActivityLog().filter(
+    (entry) => String(entry.challengeId) === String(challengeId)
+  )
+}
+
+// Distinct challenge ids from the activity log, newest-first, any outcome
+// (correct/incorrect/skipped all count) - used to avoid repeating recently
+// attempted challenges. The log is uncapped, so this breaks early at `limit`
+// rather than deduping the whole thing on every call.
+export function getRecentChallengeIds(limit = 5): (string | number)[] {
+  const seen = new Set<string>()
+  const ids: (string | number)[] = []
+  for (const entry of getActivityLog()) {
+    const key = String(entry.challengeId)
+    if (seen.has(key)) continue
+    seen.add(key)
+    ids.push(entry.challengeId)
+    if (ids.length >= limit) break
+  }
+  return ids
 }
 
 export function getChallengeSummaries(): ChallengeSummary[] {

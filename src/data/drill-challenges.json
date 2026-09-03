@@ -2,6 +2,7 @@
   {
     "id": "ts-001",
     "title": "Hello, TypeScript!",
+    "difficulty": "easy",
     "description": "Write a function that returns a personalized greeting string.",
     "objective": "Return the string \"Hello, TypeScript!\" from your code.",
     "hints": [
@@ -16,6 +17,7 @@
   {
     "id": "ts-002",
     "title": "Sum Two Numbers",
+    "difficulty": "easy",
     "description": "Add two numbers together and return the result.",
     "objective": "Return the sum of 42 and 58. The expected output is 100.",
     "hints": [
@@ -41,6 +43,7 @@
   {
     "id": "ts-003",
     "title": "FizzBuzz Classic",
+    "difficulty": "medium",
     "description": "Solve the classic FizzBuzz problem for the number 15.",
     "objective": "Return \"FizzBuzz\" if the number is divisible by both 3 and 5, \"Fizz\" if only divisible by 3, \"Buzz\" if only by 5, otherwise return the number itself. Test with n = 15.",
     "hints": [
@@ -55,6 +58,7 @@
   {
     "id": "ts-004",
     "title": "Reverse a String",
+    "difficulty": "easy",
     "description": "Reverse the characters in a given string.",
     "objective": "Return the string \"hello\" reversed. Expected output: \"olleh\".",
     "hints": [
@@ -69,6 +73,7 @@
   {
     "id": "ts-005",
     "title": "Array Sum",
+    "difficulty": "easy",
     "description": "Sum all numbers in an array using reduce.",
     "objective": "Return the sum of all numbers in [1, 2, 3, 4, 5]. Expected output: 15.",
     "hints": [
@@ -89,6 +94,7 @@
   {
     "id": "ts-006",
     "title": "Find the Maximum",
+    "difficulty": "medium",
     "description": "Find the largest number in an array without using Math.max.",
     "objective": "Return the largest number in [3, 7, 1, 9, 4, 6]. Expected output: 9.",
     "hints": [
@@ -109,6 +115,7 @@
   {
     "id": "ts-007",
     "title": "Count Vowels",
+    "difficulty": "medium",
     "description": "Count how many vowel characters appear in a string.",
     "objective": "Return the number of vowels (a, e, i, o, u) in \"programming\". Expected output: 3.",
     "hints": [
@@ -129,6 +136,7 @@
   {
     "id": "ts-008",
     "title": "Flatten a Nested Array",
+    "difficulty": "easy",
     "description": "Flatten a one-level nested array into a single array.",
     "objective": "Return [[1, 2], [3, 4], [5, 6]] flattened to [1, 2, 3, 4, 5, 6]. Return as JSON string.",
     "hints": [
@@ -143,6 +151,7 @@
   {
     "id": "ts-009",
     "title": "Capitalize Words",
+    "difficulty": "medium",
     "description": "Capitalize the first letter of every word in a sentence.",
     "objective": "Return \"hello world from typescript\" with each word capitalized. Expected: \"Hello World From Typescript\".",
     "hints": [
@@ -157,6 +166,7 @@
   {
     "id": "ts-010",
     "title": "Remove Duplicates",
+    "difficulty": "easy",
     "description": "Remove duplicate values from an array.",
     "objective": "Return [1, 2, 2, 3, 4, 4, 5] with duplicates removed as JSON. Expected: \"[1,2,3,4,5]\".",
     "hints": [
@@ -171,6 +181,7 @@
   {
     "id": "ts-011",
     "title": "Is Palindrome",
+    "difficulty": "easy",
     "description": "Check if a string reads the same forwards and backwards.",
     "objective": "Return true if \"racecar\" is a palindrome, false otherwise. Expected output: true.",
     "hints": [
@@ -185,6 +196,7 @@
   {
     "id": "ts-012",
     "title": "Fibonacci Sequence",
+    "difficulty": "medium",
     "description": "Generate the first N numbers of the Fibonacci sequence.",
     "objective": "Return the first 8 Fibonacci numbers as a JSON array. Expected: \"[0,1,1,2,3,5,8,13]\".",
     "hints": [
@@ -199,6 +211,7 @@
   {
     "id": "ts-013",
     "title": "Object Key Count",
+    "difficulty": "easy",
     "description": "Count the number of keys in an object.",
     "objective": "Return the number of keys in the given person object. Expected output: 4.",
     "hints": [
@@ -213,6 +226,7 @@
   {
     "id": "ts-014",
     "title": "Filter and Map Chain",
+    "difficulty": "medium",
     "description": "Filter an array, then transform the remaining items.",
     "objective": "From [1..10], filter even numbers, then square each. Return as JSON. Expected: \"[4,16,36,64,100]\".",
     "hints": [
@@ -227,6 +241,7 @@
   {
     "id": "ts-015",
     "title": "Deep Object Merge",
+    "difficulty": "easy",
     "description": "Merge two flat objects together, with the second object's values taking priority.",
     "objective": "Merge {a: 1, b: 2} and {b: 3, c: 4}. Return JSON. Expected: \"{\\\"a\\\":1,\\\"b\\\":3,\\\"c\\\":4}\".",
     "hints": [
@@ -241,6 +256,7 @@
   {
     "id": "ts-016",
     "title": "Group Items by Key",
+    "difficulty": "hard",
     "description": "Implement a generic function that groups an array of objects into a dictionary keyed by a given property, preserving each group's original relative order.",
     "objective": "Group the items below by their `category` value and return the resulting record.",
     "hints": [
@@ -260,6 +276,7 @@
   {
     "id": "ts-017",
     "title": "Deep Clone a Nested Value",
+    "difficulty": "hard",
     "description": "Implement a function that returns a fully independent deep copy of a value made up of plain objects, arrays, numbers, strings, booleans, and null.",
     "objective": "Deep-clone the nested `original` value below and return the copy.",
     "hints": [
@@ -274,6 +291,7 @@
   {
     "id": "ts-018",
     "title": "Flatten a Nested Array to a Depth",
+    "difficulty": "hard",
     "description": "Implement a function that flattens a nested array up to a given depth, without using the built-in Array.prototype.flat.",
     "objective": "Flatten the `nested` array below to a depth of 2 and return the result.",
     "hints": [
@@ -288,6 +306,7 @@
   {
     "id": "ts-019",
     "title": "Pluck Specific Object Keys",
+    "difficulty": "medium",
     "description": "Implement a generic function that returns a new object containing only the specified keys, copied from the input object, in the order given.",
     "objective": "Pluck the `name` and `age` keys from the `user` object below and return the result.",
     "hints": [
@@ -302,6 +321,7 @@
   {
     "id": "ts-020",
     "title": "Merge Two Typed Objects",
+    "difficulty": "medium",
     "description": "Implement a function that returns a new object combining two objects, where the second object's values take priority on key collisions (shallow merge only).",
     "objective": "Merge `target` and `source` below (source wins on conflicts) and return the result.",
     "hints": [
@@ -316,6 +336,7 @@
   {
     "id": "ts-021",
     "title": "Remove Duplicate Objects by Key",
+    "difficulty": "hard",
     "description": "Implement a function that returns a new array with duplicate objects removed, where two objects are considered duplicates if they share the same value for a given key. Keep only the first occurrence.",
     "objective": "Remove duplicate items from the array below by their `id` and return the result.",
     "hints": [
@@ -330,6 +351,7 @@
   {
     "id": "ts-022",
     "title": "Sort by Multiple Keys",
+    "difficulty": "hard",
     "description": "Implement a function that returns a new, ascending-sorted array, using each key in order as a tiebreaker for the previous one, without mutating the input array.",
     "objective": "Sort the `people` array below by `name`, then `age`, and return the result.",
     "hints": [
@@ -344,6 +366,7 @@
   {
     "id": "ts-023",
     "title": "Curry a Two-Argument Function",
+    "difficulty": "medium",
     "description": "Implement a function that transforms a two-argument function into a curried version, callable as curried(a)(b).",
     "objective": "Curry the `add` function below, call it as `curriedAdd(3)(4)`, and return the result.",
     "hints": [
@@ -358,6 +381,7 @@
   {
     "id": "ts-024",
     "title": "Memoize a Numeric Function",
+    "difficulty": "hard",
     "description": "Implement a function that returns a memoized version of a single-argument numeric function — calling it twice with the same argument should only invoke the underlying function once.",
     "objective": "Memoize `square` below, call it as shown, and return the results plus the final `callCount`.",
     "hints": [
@@ -372,6 +396,7 @@
   {
     "id": "ts-025",
     "title": "Safely Parse JSON with a Fallback",
+    "difficulty": "medium",
     "description": "Implement a function that attempts to JSON.parse a string and returns the parsed result on success, or a provided fallback value if parsing throws.",
     "objective": "Safely parse the valid and invalid JSON strings below and return both results as a pair.",
     "hints": [
@@ -382,5 +407,80 @@
     "starterCode": "function safeJsonParse<T>(jsonString: string, fallback: T): T {\n  // TODO: implement safe parsing logic\n}\n\nconst validResult = safeJsonParse('{\"x\":1,\"y\":[2,3]}', { x: 0, y: [] });\nconst invalidResult = safeJsonParse('{invalid json}', { x: 0, y: [] });\n\nreturn [validResult, invalidResult];\n",
     "expectedOutput": "[{\"x\":1,\"y\":[2,3]},{\"x\":0,\"y\":[]}]",
     "explanation": "`JSON.parse` throws a `SyntaxError` on malformed input rather than returning `null` or `undefined`, so a `try/catch` is required to handle it gracefully: `try { return JSON.parse(jsonString) as T; } catch { return fallback; }`. Accepting `fallback: T` (rather than hardcoding a default) keeps the function generic and type-safe — callers get back exactly the type they expect whether parsing succeeds or fails, with no `any` leaking out."
+  },
+  {
+    "id": "ts-026",
+    "title": "Filter an Object's Entries",
+    "difficulty": "easy",
+    "description": "Keep only the object entries whose value passes a condition.",
+    "objective": "Return the `inventory` object below with only the entries whose count is greater than zero. Expected: {\"apples\":4,\"cherries\":12}.",
+    "hints": [
+      "Object.entries(obj) turns an object into an array of [key, value] pairs.",
+      "Filter that array, then rebuild an object with Object.fromEntries(pairs).",
+      "The count for \"bananas\" and \"dates\" is 0, so those two entries should be dropped."
+    ],
+    "starterCode": "const inventory = { apples: 4, bananas: 0, cherries: 12, dates: 0 };\n// TODO: return only the entries with a count greater than zero, as an object\n",
+    "expectedOutput": "{\"apples\":4,\"cherries\":12}",
+    "explanation": "`Object.entries(obj)` gives you an array of `[key, value]` pairs you can `.filter()` like any other array — here, keeping only pairs where `count > 0`. `Object.fromEntries(pairs)` then rebuilds a plain object from that filtered array. This entries-filter-fromEntries round trip is the standard way to transform an object by its values without manually reassigning keys one at a time."
+  },
+  {
+    "id": "ts-027",
+    "title": "Deep Equality Check",
+    "difficulty": "hard",
+    "description": "Implement a function that recursively compares two values for structural equality, not just reference equality.",
+    "objective": "Compare `left` against `right` and against `other` below, and return the three comparison results.",
+    "hints": [
+      "If `a === b`, they're equal immediately — this also covers matching primitives.",
+      "If either isn't a non-null object, or one is an array and the other isn't, they can't be equal.",
+      "Compare `Object.keys(a).length` to `Object.keys(b).length` first — if the key counts differ they can't be equal — then recursively call your function on each matching key's values."
+    ],
+    "starterCode": "function deepEqual(a: unknown, b: unknown): boolean {\n  // TODO: implement deep equality logic\n}\n\nconst left = { a: 1, b: [2, 3], c: { d: null, e: \"x\" } };\nconst right = { a: 1, b: [2, 3], c: { d: null, e: \"x\" } };\nconst other = { a: 1, b: [2, 4], c: { d: null, e: \"x\" } };\n\nreturn [deepEqual(left, right), deepEqual(left, other), deepEqual(left, { ...left, extra: 1 })];\n",
+    "expectedOutput": "[true,false,false]",
+    "explanation": "The recursive walk is: `if (a === b) return true; if (typeof a !== \"object\" || typeof b !== \"object\" || a === null || b === null) return false; if (Array.isArray(a) !== Array.isArray(b)) return false; const aKeys = Object.keys(a); const bKeys = Object.keys(b); if (aKeys.length !== bKeys.length) return false; return aKeys.every(key => deepEqual(a[key], b[key]));`. The key-count check before recursing is what catches the third case — comparing `left` to `{...left, extra: 1}` — since a naive implementation that only checks whether every key of `a` matches in `b` would miss that `b` has an *extra* key `a` doesn't. The `null` and array values in the fixture force the `typeof null === \"object\"` and `Array.isArray` guards to actually matter."
+  },
+  {
+    "id": "ts-028",
+    "title": "Safely Read a Nested Path",
+    "difficulty": "hard",
+    "description": "Implement a function that reads a dot/bracket-notated path out of a nested object, returning a fallback if any step along the path is missing.",
+    "objective": "Read the four paths below out of `data` (with the given fallbacks) and return the results.",
+    "hints": [
+      "Turn the path string into a list of keys, e.g. \"user.tags[0]\" should become [\"user\", \"tags\", \"0\"] — replacing \"[0]\" with \".0\" before splitting on \".\" handles both dot and bracket notation with one rule.",
+      "Walk the keys one at a time, moving `current` deeper into the object; if `current` isn't an object at any step, the path doesn't exist — return the fallback right away.",
+      "Only fall back to the default when the final value is `undefined` — don't use `value || fallback`, since a legitimately falsy value like 0 would incorrectly trigger the fallback too."
+    ],
+    "starterCode": "function getIn<T>(obj: unknown, path: string, fallback: T): T {\n  // TODO: implement safe path traversal logic\n}\n\nconst data = {\n  user: { profile: { role: \"admin\" }, tags: [\"a\", \"b\"] },\n  count: 0,\n};\n\nconst role = getIn(data, \"user.profile.role\", \"none\");\nconst missing = getIn(data, \"user.profile.age\", \"none\");\nconst firstTag = getIn(data, \"user.tags[0]\", \"none\");\nconst zeroCount = getIn(data, \"count\", -1);\n\nreturn [role, missing, firstTag, zeroCount];\n",
+    "expectedOutput": "[\"admin\",\"none\",\"a\",0]",
+    "explanation": "`path.replace(/\\[(\\d+)\\]/g, \".$1\").split(\".\").filter(Boolean)` normalizes both `\"a.b\"` and `\"a[0]\"` style segments into one flat list of keys. Walking that list, `current = current[key]` steps one level deeper each time, bailing out to the fallback the moment `current` stops being an object (which is what happens for the missing `\"age\"` path). The last line, `return current === undefined ? fallback : current;`, is the part that makes `getIn(data, \"count\", -1)` correctly return `0` instead of `-1` — a naive `current || fallback` would treat the legitimate value `0` as falsy and wrongly fall back."
+  },
+  {
+    "id": "ts-029",
+    "title": "LRU Cache",
+    "difficulty": "hard",
+    "description": "Implement a fixed-capacity cache that evicts its least recently used entry once it's full, where both reads and writes count as \"using\" an entry.",
+    "objective": "Complete the `get`/`set` methods below so the scripted sequence of calls produces the expected eviction, then return a summary of what happened.",
+    "hints": [
+      "A `Map` remembers insertion order, and deleting then re-setting a key moves it to the end — that's exactly \"most recently used\" ordering for free.",
+      "On `get`: if the key isn't present, return `undefined`; otherwise delete and re-set it (to move it to the end) before returning its value.",
+      "On `set`: if the cache is at capacity and the key is new, evict the first key the Map's iterator yields (`this.map.keys().next().value`) — that's always the least recently used one — before inserting."
+    ],
+    "starterCode": "class LRUCache<K, V> {\n  capacity: number;\n  map: Map<K, V>;\n\n  constructor(capacity: number) {\n    this.capacity = capacity;\n    this.map = new Map<K, V>();\n  }\n\n  get(key: K): V | undefined {\n    // TODO: implement get - return undefined on a miss, and mark the key as\n    // most recently used on a hit\n  }\n\n  set(key: K, value: V): void {\n    // TODO: implement set - evict the least recently used entry if over capacity\n  }\n\n  keys(): K[] {\n    return [...this.map.keys()];\n  }\n}\n\nconst cache = new LRUCache<string, number>(2);\ncache.set(\"a\", 1);\ncache.set(\"b\", 2);\nconst hitA = cache.get(\"a\") ?? null;\ncache.set(\"c\", 3);\nconst missB = cache.get(\"b\") ?? null;\n\nreturn { hitA, missB, keys: cache.keys() };\n",
+    "expectedOutput": "{\"hitA\":1,\"missB\":null,\"keys\":[\"a\",\"c\"]}",
+    "explanation": "`get` is `if (!this.map.has(key)) return undefined; const value = this.map.get(key)!; this.map.delete(key); this.map.set(key, value); return value;` — the delete-then-set is what moves a *read* key to the most-recently-used end. `set` mirrors that: if the key already exists, delete it first (so the re-insert below moves it to the end); otherwise, if the map is already at capacity, delete `this.map.keys().next().value` — the oldest surviving key — before inserting the new one. Tracing the script: after `set(\"a\",1)` and `set(\"b\",2)` the map is `[a,b]`; `get(\"a\")` reorders it to `[b,a]` (so `hitA` is `1`); `set(\"c\",3)` is over capacity with `\"b\"` now oldest, evicting it to leave `[a,c]`; `get(\"b\")` is therefore a miss (`missB` is `null`)."
+  },
+  {
+    "id": "ts-030",
+    "title": "Diff Two Objects",
+    "difficulty": "hard",
+    "description": "Implement a function that compares two flat objects and reports which keys were added, removed, or changed between them.",
+    "objective": "Diff `before` against `after` below and return the added/removed/changed key lists.",
+    "hints": [
+      "A key is \"added\" if it exists in `after` but not in `before` — check with the `in` operator, e.g. `!(key in before)`.",
+      "A key is \"removed\" if it exists in `before` but not in `after` — the same check, the other direction.",
+      "A key present in both is \"changed\" only if its values differ (`before[key] !== after[key]`); if they're equal, it's neither added, removed, nor changed."
+    ],
+    "starterCode": "function diffObjects<T extends Record<string, unknown>>(\n  before: T,\n  after: T\n): { added: string[]; removed: string[]; changed: string[] } {\n  // TODO: implement diffing logic\n}\n\nconst before = { a: 1, b: 2, c: 3 };\nconst after = { b: 2, c: 30, d: 4 };\n\nreturn diffObjects(before, after);\n",
+    "expectedOutput": "{\"added\":[\"d\"],\"removed\":[\"a\"],\"changed\":[\"c\"]}",
+    "explanation": "Two separate passes keep the logic simple: `for (const key of Object.keys(after)) if (!(key in before)) added.push(key);` finds new keys, then `for (const key of Object.keys(before)) { if (!(key in after)) removed.push(key); else if (before[key] !== after[key]) changed.push(key); }` finds removals and value changes in one pass over `before`'s keys. Here `a` only exists in `before` (removed), `d` only exists in `after` (added), `b` is present in both with the same value (ignored), and `c` is present in both but its value changed from `3` to `30` (changed)."
   }
 ]

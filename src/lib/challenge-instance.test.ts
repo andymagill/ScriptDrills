@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { instantiateChallenge } from "./challenge-instance"
 import { evaluateCode, stringifyResult } from "./run-code"
-import challengesData from "@/data/drill-challenges.json"
+import { challenges } from "@/data/challenges"
+import { RECENT_WINDOW } from "@/lib/challenge-select"
 import type { Challenge } from "@/types"
 
 const staticChallenge: Challenge = {
   id: "test-static",
   title: "Static Challenge",
+  difficulty: "easy",
   description: "A static challenge.",
   objective: "Do the thing.",
   hints: ["hint one", "hint two"],
@@ -42,6 +44,7 @@ describe("instantiateChallenge - static (no randomize)", () => {
     expect(instance).toEqual({
       challengeId: "test-static",
       title: "Static Challenge",
+      difficulty: "easy",
       description: "A static challenge.",
       objective: "Do the thing.",
       hints: ["hint one", "hint two"],
@@ -87,7 +90,6 @@ describe("instantiateChallenge - randomized", () => {
 })
 
 describe("instantiateChallenge - data-integrity sweep over drill-challenges.json", () => {
-  const challenges = challengesData as Challenge[]
   const randomized = challenges.filter((c) => c.randomize)
 
   it("has at least one randomized challenge to sweep", () => {
@@ -97,6 +99,22 @@ describe("instantiateChallenge - data-integrity sweep over drill-challenges.json
   it("has unique ids across all challenges", () => {
     const ids = challenges.map((c) => c.id)
     expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it("every challenge has a valid difficulty", () => {
+    for (const challenge of challenges) {
+      expect(["easy", "medium", "hard"]).toContain(challenge.difficulty)
+    }
+  })
+
+  it("every difficulty tier has more challenges than the repeat-avoidance window", () => {
+    const counts = { easy: 0, medium: 0, hard: 0 }
+    for (const challenge of challenges) counts[challenge.difficulty]++
+    for (const [tier, count] of Object.entries(counts)) {
+      expect(count, `tier ${tier} has only ${count} challenges`).toBeGreaterThan(
+        RECENT_WINDOW
+      )
+    }
   })
 
   it("no challenge's default instance leaks its answer via an unsolved starterCode", () => {
